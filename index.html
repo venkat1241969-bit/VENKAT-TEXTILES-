@@ -8,7 +8,6 @@
 </head>
 <body class="bg-gray-50">
 
-    <!-- Header -->
     <header class="bg-indigo-700 text-white p-4 shadow-md sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
             <div>
@@ -19,7 +18,6 @@
         </div>
     </header>
 
-    <!-- Products Grid -->
     <main class="container mx-auto p-6">
         <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">మా లైవ్ కలెక్షన్స్</h2>
         <div id="products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -29,7 +27,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBPOp8NtMBP09rNtCGe5-wRre6Y_Zt5g0M",
@@ -55,8 +53,10 @@
                     return;
                 }
 
-                querySnapshot.forEach((doc) => {
-                    const p = doc.data();
+                querySnapshot.forEach((docItem) => {
+                    const p = docItem.data();
+                    const docId = docItem.id;
+
                     grid.innerHTML += `
                         <div class="bg-white rounded-lg shadow overflow-hidden flex flex-col justify-between">
                             <img class="h-48 w-full object-cover" src="${p.image}" alt="${p.name}">
@@ -69,6 +69,9 @@
                                         WhatsApp ఆర్డర్
                                     </button>
                                 </div>
+                                <button onclick="deleteProduct('${docId}')" class="w-full mt-2 bg-red-500 text-white text-xs py-1 rounded font-bold hover:bg-red-600">
+                                    🗑️ ఈ ప్రొడక్ట్ తొలగించు (Delete)
+                                </button>
                             </div>
                         </div>
                     `;
@@ -79,9 +82,21 @@
         }
 
         window.sendOrder = function(name, price) {
-            const myNumber = "919441447923"; // 👈 మీ వాట్సాప్ నంబర్ ఇక్కడ ఇవ్వబడింది
+            const myNumber = "919441447923";
             const text = `హలో Venkat Textiles, నేను మీ సైట్‌లో ఈ ప్రొడక్ట్ చూశాను:\n\nSaree: *${name}*\nPrice: *₹${price}*\n\nఆర్డర్ కన్ఫర్మ్ చేయగలరు.`;
             window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        window.deleteProduct = async function(id) {
+            if (confirm("మీరు నిజంగా ఈ ప్రొడక్ట్‌ని తొలగించాలనుకుంటున్నారా?")) {
+                try {
+                    await deleteDoc(doc(db, "products", id));
+                    alert("ప్రొడక్ట్ വിജയవంతంగా తొలగించబడింది!");
+                    loadProducts(); // రీలోడ్ చేయండి
+                } catch (error) {
+                    alert("తొలగించడంలో ఎర్రర్ వచ్చింది: " + error.message);
+                }
+            }
         }
 
         loadProducts();

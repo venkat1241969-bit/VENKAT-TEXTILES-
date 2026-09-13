@@ -20,25 +20,25 @@
                 <input type="number" id="pPrice" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm">
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700">ఇమేజ్ లింక్ (Image URL)</label>
-                <input type="url" id="pImage" placeholder="https://..." required class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm">
+                <label class="block text-sm font-medium text-gray-700">ఫోటో ఎంచుకోండి (Mobile Gallery)</label>
+                <input type="file" id="pImageFile" accept="image/*" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm bg-gray-50">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">వివరాలు (Description)</label>
                 <textarea id="pDesc" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"></textarea>
             </div>
-            <button type="submit" class="w-full bg-indigo-600 text-white p-2 rounded-md font-bold hover:bg-indigo-700">Add Product Live</button>
+            <button type="submit" id="submitBtn" class="w-full bg-indigo-600 text-white p-2 rounded-md font-bold hover:bg-indigo-700">Add Product Live</button>
         </form>
     </div>
 
     <script type="module">
-        // సరిైన Firebase CDN లింకులు
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBPOp8NtMBP09rNtCGe5-wRre6Y_Zt5g0M",
-            authDomain: "venkat-textiles.firebaseapp.com", // ఇక్కడ ముందు ఉన్న "://" తొలగించబడింది
+            authDomain: "venkat-textiles.firebaseapp.com",
             projectId: "venkat-textiles",
             storageBucket: "venkat-textiles.firebasestorage.app",
             messagingSenderId: "636994469508",
@@ -47,21 +47,38 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "అప్‌లోడ్ అవుతోంది...";
+
             try {
+                const fileInput = document.getElementById('pImageFile').files[0];
+                const storageRef = ref(storage, 'products/' + Date.now() + '_' + fileInput.name);
+                
+                // ఫోటోని Firebase Storage కి అప్‌లోడ్ చేయడం
+                const snapshot = await uploadBytes(storageRef, fileInput);
+                const downloadURL = await getDownloadURL(snapshot.ref);
+
+                // డేటాబేస్‌లో ప్రొడక్ట్ వివరాలు సేవ్ చేయడం
                 await addDoc(collection(db, "products"), {
                     name: document.getElementById('pName').value,
                     price: document.getElementById('pPrice').value,
-                    image: document.getElementById('pImage').value,
+                    image: downloadURL,
                     description: document.getElementById('pDesc').value,
                     timestamp: new Date()
                 });
+
                 alert("ప్రొడక్ట్ విజయవంతంగా లైవ్ చేయబడింది! 🎉");
                 document.getElementById('productForm').reset();
             } catch (error) {
                 alert("ఎర్రర్ వచ్చింది: " + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Add Product Live";
             }
         });
     </script>

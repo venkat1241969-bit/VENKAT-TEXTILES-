@@ -71,9 +71,9 @@
                                     </button>
                                 </div>
 
-                                <!-- UPI Payment Gateway Button -->
-                                <button onclick="payWithUPI('${p.name.replace(/'/g, "\\'")}', '${p.price}')" class="w-full mb-2 bg-blue-600 text-white text-sm py-2.5 rounded-lg font-bold shadow hover:bg-blue-700 transition">
-                                    💳 Pay Now (GooglePay / PhonePe / UPI)
+                                <!-- PhonePe UPI Payment Button -->
+                                <button onclick="payWithPhonePe('${p.name.replace(/'/g, "\\'")}', '${p.price}')" class="w-full mb-2 bg-purple-600 text-white text-sm py-2.5 rounded-lg font-bold shadow hover:bg-purple-700 transition">
+                                    💳 Pay via PhonePe (₹${p.price})
                                 </button>
 
                                 <button onclick="deleteProduct('${docId}')" class="w-full bg-red-500 text-white text-xs py-2 rounded-lg font-semibold hover:bg-red-600 transition">
@@ -94,15 +94,14 @@
             window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        // UPI Payment Gateway Integration (మీ UPI ID ఇక్కడ సెట్ చేయబడింది)
-        window.payWithUPI = function(name, price) {
-            const upiId = "+919441447923@ybl"; // మీ ఫోన్‌పే/గూగుల్ పే నంబర్‌తో కూడిన UPI ID
+        // PhonePe UPI Payment Integration (9441447923@ybl)
+        window.payWithPhonePe = function(name, price) {
+            const upiId = "9441447923@ybl"; 
             const payeeName = "Venkat Textiles";
             const note = `Payment for ${name}`;
             
             const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${price}&cu=INR&tn=${encodeURIComponent(note)}`;
             
-            // మొబైల్ యూపిఐ యాప్స్ ఓపెన్ చేయడానికి లింక్ ట్రిగ్గర్ చేయడం
             window.location.href = upiUrl;
         }
 

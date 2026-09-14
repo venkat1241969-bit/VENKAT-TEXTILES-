@@ -21,11 +21,11 @@
     <main class="container mx-auto p-4 md:p-6">
         <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">మా లైవ్ కలెక్షన్స్</h2>
         <div id="products-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <p class="col-span-full text-center py-10 text-lg font-semibold text-gray-600">ప్రొడక్ట్స్ లోడ్ అవుతున్నాయి...</p>
+            <div class="col-span-full text-center py-10 text-lg font-semibold text-gray-600 animate-pulse">ప్రొడక్ట్స్ ఫాస్ట్ లోడ్ అవుతున్నాయి...</div>
         </div>
     </main>
 
-    <!-- QR Code Modal Popup (Hidden by default) -->
+    <!-- QR Code Modal Popup -->
     <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex justify-center items-center z-50 p-4">
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl relative">
             <h3 class="text-xl font-bold text-gray-900 mb-2">PhonePe / Google Pay</h3>
@@ -64,7 +64,8 @@
             try {
                 const q = query(collection(db, "items"), orderBy("timestamp", "desc"));
                 const querySnapshot = await getDocs(q);
-                grid.innerHTML = '';
+                
+                let content = '';
 
                 if (querySnapshot.empty) {
                     grid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-10 text-lg">ప్రస్తుతం ఎటువంటి ప్రొడక్ట్స్ అందుబాటులో లేవు.</p>`;
@@ -75,9 +76,9 @@
                     const p = docItem.data();
                     const docId = docItem.id;
 
-                    grid.innerHTML += `
+                    content += `
                         <div class="bg-white rounded-xl shadow-xl overflow-hidden flex flex-col justify-between border border-gray-200">
-                            <img class="h-80 w-full object-cover" src="${p.image}" alt="${p.name}">
+                            <img loading="lazy" class="h-80 w-full object-cover bg-gray-200" src="${p.image}" alt="${p.name}">
                             <div class="p-5 flex flex-col flex-grow">
                                 <h3 class="font-extrabold text-gray-900 text-xl mb-1">${p.name}</h3>
                                 <p class="text-gray-600 text-sm mb-4 flex-grow">${p.description || ''}</p>
@@ -89,7 +90,6 @@
                                     </button>
                                 </div>
 
-                                <!-- Pay Button -->
                                 <button onclick="openQRModal()" class="w-full mb-2 bg-purple-600 text-white text-sm py-2.5 rounded-lg font-bold shadow hover:bg-purple-700 transition">
                                     📱 Pay via PhonePe / GPay
                                 </button>
@@ -101,6 +101,8 @@
                         </div>
                     `;
                 });
+                
+                grid.innerHTML = content;
             } catch (e) {
                 grid.innerHTML = `<p class="text-red-500 col-span-full text-center text-lg">డేటా లోడ్ అవ్వలేదు: ${e.message}</p>`;
             }

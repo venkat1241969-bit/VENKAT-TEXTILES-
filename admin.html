@@ -42,12 +42,12 @@
             projectId: "venkat-textiles",
             storageBucket: "venkat-textiles.firebasestorage.app",
             messagingSenderId: "636994469508",
-            appId: "1:636994469508:web:3635e16ec5a6c117ca5b05"
+            appId: "1:636994469508:web:3635e18d8ee64288be0cd1"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const storage = getStorage(app);
+        const storage = getStorage(app, "gs://venkat-textiles.firebasestorage.app");
 
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -57,13 +57,17 @@
 
             try {
                 const fileInput = document.getElementById('pImageFile').files[0];
+                if (!fileInput) {
+                    throw new Error("దయచేసి ఫోటోను ఎంచుకోండి!");
+                }
+
                 const storageRef = ref(storage, 'products/' + Date.now() + '_' + fileInput.name);
                 
-                // ఫోటోని Firebase Storage కి అప్‌లోడ్ చేయడం
+                // ఫోటోని అప్‌లోడ్ చేయడం
                 const snapshot = await uploadBytes(storageRef, fileInput);
                 const downloadURL = await getDownloadURL(snapshot.ref);
 
-                // డేటాబేస్‌లో ప్రొడక్ట్ వివరాలు సేవ్ చేయడం
+                // డేటాబేస్‌లో సేవ్ చేయడం
                 await addDoc(collection(db, "products"), {
                     name: document.getElementById('pName').value,
                     price: document.getElementById('pPrice').value,
@@ -75,7 +79,9 @@
                 alert("ప్రొడక్ట్ విజయవంతంగా లైవ్ చేయబడింది! 🎉");
                 document.getElementById('productForm').reset();
             } catch (error) {
-                alert("ఎర్రర్ వచ్చింది: " + error.message);
+                // ఎర్రర్ వస్తే ఇక్కడ బాక్స్‌లో క్లియర్ గా చూపిస్తుంది
+                alert("ఎర్రర్ వివరాలు: " + error.message);
+                console.error(error);
             } finally {
                 btn.disabled = false;
                 btn.innerText = "Add Product Live";

@@ -44,7 +44,8 @@
         async function loadProducts() {
             const grid = document.getElementById('products-grid');
             try {
-                const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
+                // కలెక్షన్ పేరు 'items' నుండి డేటాను ఫెచ్ చేయడం
+                const q = query(collection(db, "items"), orderBy("timestamp", "desc"));
                 const querySnapshot = await getDocs(q);
                 grid.innerHTML = '';
 
@@ -90,7 +91,7 @@
         window.deleteProduct = async function(id) {
             if (confirm("మీరు నిజంగా ఈ ప్రొడక్ట్‌ని తొలగించాలనుకుంటున్నారా?")) {
                 try {
-                    await deleteDoc(doc(db, "products", id));
+                    await deleteDoc(doc(db, "items", id));
                     alert("ప్రొడక్ట్ విజయవంతంగా తొలగించబడింది!");
                     loadProducts();
                 } catch (error) {

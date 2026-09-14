@@ -59,18 +59,16 @@
                     throw new Error("దయచేసి ఫోటోను ఎంచుకోండి!");
                 }
 
-                // ఫోటోను సురక్షితమైన టెక్స్ట్ రూపంలోకి మార్చడం
                 const reader = new FileReader();
                 reader.readAsDataURL(fileInput);
                 
                 reader.onload = async function () {
                     try {
                         const base64Image = reader.result;
-
                         btn.innerText = "ప్రొడక్ట్ లైవ్ చేయబడుతోంది...";
 
-                        // ఫైర్‌స్టోర్ డేటాబేస్‌లో సేవ్ చేయడం
-                        await addDoc(collection(db, "products"), {
+                        // కలెక్షన్ పేరు 'items' గా మార్చబడింది
+                        await addDoc(collection(db, "items"), {
                             name: document.getElementById('pName').value,
                             price: document.getElementById('pPrice').value,
                             image: base64Image,
@@ -88,7 +86,7 @@
                     }
                 };
 
-                reader.onerror = function (error) {
+                reader.onerror = function () {
                     throw new Error("ఫోటో రీడ్ అవ్వడంలో ఎర్రర్ వచ్చింది.");
                 };
 

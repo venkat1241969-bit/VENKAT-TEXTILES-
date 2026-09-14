@@ -35,7 +35,7 @@
             projectId: "venkat-textiles",
             storageBucket: "venkat-textiles.firebasestorage.app",
             messagingSenderId: "636994469508",
-            appId: "1:636994469508:web:3635e16ec5a6c117ca5b05"
+            appId: "1:636994469508:web:3635e18d8ee64288be0cd1"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -91,8 +91,8 @@
             if (confirm("మీరు నిజంగా ఈ ప్రొడక్ట్‌ని తొలగించాలనుకుంటున్నారా?")) {
                 try {
                     await deleteDoc(doc(db, "products", id));
-                    alert("ప్రొడక్ట్ വിജയవంతంగా తొలగించబడింది!");
-                    loadProducts(); // రీలోడ్ చేయండి
+                    alert("ప్రొడక్ట్ విజయవంతంగా తొలగించబడింది!");
+                    loadProducts();
                 } catch (error) {
                     alert("తొలగించడంలో ఎర్రర్ వచ్చింది: " + error.message);
                 }

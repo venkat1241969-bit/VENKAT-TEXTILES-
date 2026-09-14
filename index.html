@@ -14,7 +14,7 @@
             <p class="text-xs md:text-sm text-indigo-200 mt-1">GSTIN: 37ADGPY4978G1ZR</p>
         </div>
         <button onclick="openQRModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1">
-            📷 Pay via QR
+            📷 QR Code
         </button>
     </header>
 
@@ -25,16 +25,16 @@
         </div>
     </main>
 
-    <!-- QR Code Modal Popup -->
+    <!-- QR Code / Payment Modal Popup -->
     <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex justify-center items-center z-50 p-4">
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl relative">
-            <h3 class="text-xl font-bold text-gray-900 mb-2">PhonePe / Google Pay</h3>
-            <p class="text-sm font-bold text-indigo-600 mb-4">Venkat Textiles</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">PhonePe / GPay Payment</h3>
+            <p class="text-xs font-bold text-indigo-600 mb-4">Venkat Textiles</p>
             
-            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4">
-                <p class="text-xs text-gray-500 mb-1">మొబైల్ నంబర్ / UPI ID:</p>
-                <p class="text-xl font-black text-gray-800 tracking-wider">9441447923</p>
-                <p class="text-xs text-green-600 font-bold mt-2">✓ PhonePe & GPay లో ఈ నంబర్‌కు డైరెక్ట్ అమౌంట్ పంపవచ్చు</p>
+            <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-200 mb-4">
+                <p class="text-xs text-gray-600 mb-1">డైరెక్ట్ నంబర్‌కు అమౌంట్ పంపండి:</p>
+                <p class="text-2xl font-black text-indigo-900 tracking-wider">9441447923</p>
+                <p class="text-xs text-green-700 font-bold mt-2">✓ PhonePe, GPay, Paytm లో ఈ నంబర్‌కు పే చేయవచ్చు</p>
             </div>
             
             <button onclick="closeQRModal()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-bold transition">
@@ -90,8 +90,9 @@
                                     </button>
                                 </div>
 
+                                <!-- Payment Help Button -->
                                 <button onclick="openQRModal()" class="w-full mb-2 bg-purple-600 text-white text-sm py-2.5 rounded-lg font-bold shadow hover:bg-purple-700 transition">
-                                    📱 Pay via PhonePe / GPay
+                                    📱 Pay to Number (9441447923)
                                 </button>
 
                                 <button onclick="deleteProduct('${docId}')" class="w-full bg-red-500 text-white text-xs py-2 rounded-lg font-semibold hover:bg-red-600 transition">
@@ -138,3 +139,4 @@
     </script>
 </body>
 </html>
+

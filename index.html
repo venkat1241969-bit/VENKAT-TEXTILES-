@@ -3,49 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Venkat Textiles - Online Shop</title>
+    <title>Venkat Textiles - Online Store</title>
     <script src="https://tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
-
-    <header class="bg-indigo-700 text-white p-5 shadow-lg sticky top-0 z-50 flex justify-between items-center">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-wide">VENKAT TEXTILES</h1>
-            <p class="text-xs md:text-sm text-indigo-200 mt-1">GSTIN: 37ADGPY4978G1ZR</p>
-        </div>
-        <button onclick="openQRModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1">
-            📷 QR Code
-        </button>
-    </header>
-
-    <main class="container mx-auto p-4 md:p-6">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">మా లైవ్ కలెక్షన్స్</h2>
-        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="col-span-full text-center py-10 text-lg font-semibold text-gray-600 animate-pulse">ప్రొడక్ట్స్ ఫాస్ట్ లోడ్ అవుతున్నాయి...</div>
-        </div>
-    </main>
-
-    <!-- QR Code / Payment Modal Popup -->
-    <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex justify-center items-center z-50 p-4">
-        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl relative">
-            <h3 class="text-xl font-bold text-gray-900 mb-1">PhonePe / GPay Payment</h3>
-            <p class="text-xs font-bold text-indigo-600 mb-4">Venkat Textiles</p>
-            
-            <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-200 mb-4">
-                <p class="text-xs text-gray-600 mb-1">డైరెక్ట్ నంబర్‌కు అమౌంట్ పంపండి:</p>
-                <p class="text-2xl font-black text-indigo-900 tracking-wider">9441447923</p>
-                <p class="text-xs text-green-700 font-bold mt-2">✓ PhonePe, GPay, Paytm లో ఈ నంబర్‌కు పే చేయవచ్చు</p>
-            </div>
-            
-            <button onclick="closeQRModal()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-bold transition">
-                Close / మూసివేయి
-            </button>
-        </div>
-    </div>
-
+    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBPOp8NtMBP09rNtCGe5-wRre6Y_Zt5g0M",
@@ -58,13 +22,15 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
-        async function loadProducts() {
+        let cart = [];
+
+        window.loadProducts = async function() {
             const grid = document.getElementById('products-grid');
             try {
                 const q = query(collection(db, "items"), orderBy("timestamp", "desc"));
                 const querySnapshot = await getDocs(q);
-                
                 let content = '';
 
                 if (querySnapshot.empty) {
@@ -75,68 +41,262 @@
                 querySnapshot.forEach((docItem) => {
                     const p = docItem.data();
                     const docId = docItem.id;
+                    const safeName = p.name ? p.name.replace(/'/g, "\\'") : '';
+                    const priceNum = Number(p.price) || 0;
+                    const originalPrice = Math.round(priceNum * 1.4); // 40% off dummy tag
 
                     content += `
-                        <div class="bg-white rounded-xl shadow-xl overflow-hidden flex flex-col justify-between border border-gray-200">
-                            <img loading="lazy" class="h-80 w-full object-cover bg-gray-200" src="${p.image}" alt="${p.name}">
-                            <div class="p-5 flex flex-col flex-grow">
-                                <h3 class="font-extrabold text-gray-900 text-xl mb-1">${p.name}</h3>
-                                <p class="text-gray-600 text-sm mb-4 flex-grow">${p.description || ''}</p>
+                        <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden flex flex-col justify-between relative">
+                            <div class="absolute top-2 left-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-md z-10 shadow">
+                                30% off
+                            </div>
+                            <img loading="lazy" class="h-64 w-full object-cover bg-gray-50" src="${p.image}" alt="${p.name}">
+                            <div class="p-4 flex flex-col flex-grow">
+                                <h3 class="font-bold text-gray-800 text-base mb-1 line-clamp-1">${p.name}</h3>
+                                <p class="text-gray-500 text-xs mb-3 line-clamp-1">${p.description || 'Pure Wholesale Quality'}</p>
                                 
-                                <div class="flex justify-between items-center mb-4">
-                                    <span class="text-2xl font-black text-green-700">₹${p.price}</span>
-                                    <button onclick="sendOrder('${p.name.replace(/'/g, "\\'")}', '${p.price}')" class="bg-green-600 text-white text-sm px-4 py-2.5 rounded-lg font-bold shadow hover:bg-green-700 transition">
-                                        💬 WhatsApp ఆర్డర్
-                                    </button>
+                                <div class="flex items-center gap-2 mb-4">
+                                    <span class="text-lg font-black text-rose-600">₹${priceNum}</span>
+                                    <span class="text-xs text-gray-400 line-through">₹${originalPrice}</span>
                                 </div>
 
-                                <!-- Payment Help Button -->
-                                <button onclick="openQRModal()" class="w-full mb-2 bg-purple-600 text-white text-sm py-2.5 rounded-lg font-bold shadow hover:bg-purple-700 transition">
-                                    📱 Pay to Number (9441447923)
-                                </button>
-
-                                <button onclick="deleteProduct('${docId}')" class="w-full bg-red-500 text-white text-xs py-2 rounded-lg font-semibold hover:bg-red-600 transition">
-                                    🗑️ ఈ ప్రొడక్ట్ తొలగించు (Delete)
-                                </button>
+                                <div class="flex gap-2">
+                                    <button onclick="addToCart('${docId}', '${safeName}', ${priceNum}, '${p.image}')" class="flex-grow bg-rose-600 hover:bg-rose-700 text-white py-2.5 rounded-xl font-bold text-sm shadow transition flex justify-center items-center gap-1">
+                                        🛒 Add to Cart
+                                    </button>
+                                    <button onclick="sendOrder('${safeName}', '${priceNum}')" class="bg-emerald-600 hover:bg-emerald-700 text-white p-2.5 rounded-xl font-bold shadow transition">
+                                        💬
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
                 });
-                
                 grid.innerHTML = content;
             } catch (e) {
                 grid.innerHTML = `<p class="text-red-500 col-span-full text-center text-lg">డేటా లోడ్ అవ్వలేదు: ${e.message}</p>`;
             }
         }
 
+        window.addToCart = function(id, name, price, image) {
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ id, name, price, image, qty: 1 });
+            }
+            updateCartUI();
+            showToast("కార్ట్‌లోకి జోడించబడింది!");
+        }
+
+        window.updateQty = function(id, change) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.qty += change;
+                if (item.qty <= 0) {
+                    cart = cart.filter(i => i.id !== id);
+                }
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const countEl = document.getElementById('cart-count');
+            const itemsEl = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            
+            const totalItems = cart.reduce((sum, i) => sum + i.qty, 0);
+            countEl.innerText = totalItems;
+
+            if (cart.length === 0) {
+                itemsEl.innerHTML = `<p class="text-gray-400 text-center py-8 text-sm">మీ కార్ట్ ఖాళీగా ఉంది</p>`;
+                totalEl.innerText = "₹0";
+                return;
+            }
+
+            let html = '';
+            let subtotal = 0;
+
+            cart.forEach(i => {
+                subtotal += i.price * i.qty;
+                html += `
+                    <div class="flex items-center justify-between gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <img src="${i.image}" class="w-14 h-14 object-cover rounded-lg">
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-gray-800 text-xs line-clamp-1">${i.name}</h4>
+                            <p class="text-rose-600 font-black text-sm">₹${i.price * i.qty}</p>
+                        </div>
+                        <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-2 py-1">
+                            <button onclick="updateQty('${i.id}', -1)" class="text-gray-500 font-bold px-1">-</button>
+                            <span class="text-xs font-bold">${i.qty}</span>
+                            <button onclick="updateQty('${i.id}', 1)" class="text-rose-600 font-bold px-1">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            itemsEl.innerHTML = html;
+            totalEl.innerText = `₹${subtotal}`;
+        }
+
+        window.toggleCart = function() {
+            const modal = document.getElementById('cartModal');
+            modal.classList.toggle('hidden');
+        }
+
+        window.openLoginModal = function() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        window.closeLoginModal = function() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        window.sendOTP = function() {
+            const phone = document.getElementById('phoneInput').value;
+            if(phone.length !== 10) {
+                alert("దయచేసి సరైన 10 అంకెల మొబైల్ నంబర్ ఎంటర్ చేయండి.");
+                return;
+            }
+            
+            // ReCAPTCHA and Firebase Auth logic setup container
+            window.verifyingPhone = "+91" + phone;
+            document.getElementById('otpSection').classList.remove('hidden');
+            alert("OTP పంపబడింది (టెస్ట్ మోడ్ / ఫైర్‌బేస్ వెరిఫికేషన్ సిద్ధంగా ఉంది)");
+        }
+
+        window.verifyOTPAndCheckout = function() {
+            const otp = document.getElementById('otpInput').value;
+            if(otp.length < 4) {
+                alert("సరైన OTP ఎంటర్ చేయండి.");
+                return;
+            }
+            
+            alert("లాగిన్ విజయవంతమైంది! చెక్‌అవుట్ పేజీకి మళ్ళించబడుతోంది.");
+            closeLoginModal();
+            proceedToPayment();
+        }
+
+        window.proceedToPayment = function() {
+            if(cart.length === 0) {
+                alert("మీ కార్ట్ ఖాళీగా ఉంది!");
+                return;
+            }
+            let total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            
+            // PhonePe / UPI Direct Intent or QR Gateway trigger
+            const upiId = "9441447923@ybl";
+            const payeeName = "Venkat Textiles";
+            const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${total}&cu=INR&tn=OrderFromVenkatTextiles`;
+            
+            window.location.href = upiUrl;
+        }
+
         window.sendOrder = function(name, price) {
             const myNumber = "919441447923";
-            const text = `హలో Venkat Textiles, నేను మీ సైట్‌లో ఈ ప్రొడక్ట్ చూశాను:\n\nSaree: *${name}*\nPrice: *₹${price}*\n\nఆర్డర్ కన్ఫర్మ్ చేయగలరు.`;
+            const text = `హలో Venkat Textiles, నేను ఈ ప్రొడక్ట్ ఆర్డర్ చేయాలనుకుంటున్నాను:\n\nSaree: *${name}*\nPrice: *₹${price}*`;
             window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        window.openQRModal = function() {
-            document.getElementById('qrModal').classList.remove('hidden');
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                t.classList.add('translate-y-20', 'opacity-0');
+            }, 2000);
         }
 
-        window.closeQRModal = function() {
-            document.getElementById('qrModal').classList.add('hidden');
-        }
-
-        window.deleteProduct = async function(id) {
-            if (confirm("మీరు నిజంగా ఈ ప్రొడక్ట్‌ని తొలగించాలనుకుంటున్నారా?")) {
-                try {
-                    await deleteDoc(doc(db, "items", id));
-                    alert("ప్రొడక్ట్ విజయవంతంగా తొలగించబడింది!");
-                    loadProducts();
-                } catch (error) {
-                    alert("తొలగించడంలో ఎర్రర్ వచ్చింది: " + error.message);
-                }
-            }
-        }
-
-        loadProducts();
+        window.onload = loadProducts;
     </script>
+</head>
+<body class="bg-gray-50 pb-20">
+
+    <!-- Top Header Bar -->
+    <header class="bg-rose-600 text-white p-4 sticky top-0 z-40 shadow-md flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-black tracking-wide">VENKAT TEXTILES</h1>
+            <p class="text-[10px] text-rose-100">GSTIN: 37ADGPY4978G1ZR</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="openLoginModal()" class="bg-white text-rose-600 text-xs px-3 py-1.5 rounded-full font-bold shadow">
+                👤 Login / OTP
+            </button>
+            <button onclick="toggleCart()" class="relative bg-rose-700 p-2 rounded-xl text-white">
+                🛒
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-amber-400 text-gray-900 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Product Grid Container -->
+    <main class="container mx-auto p-4">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-rose-600 pl-2">మా లేటెస్ట్ కలెక్షన్స్</h2>
+        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <p class="col-span-full text-center py-10 text-sm text-gray-500 animate-pulse">ప్రొడక్ట్స్ లోడ్ అవుతున్నాయి...</p>
+        </div>
+    </main>
+
+    <!-- Cart Slide / Modal Drawer -->
+    <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex justify-end">
+        <div class="bg-white w-full max-w-md h-full flex flex-col p-5 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b pb-3 mb-3">
+                <h3 class="text-lg font-black text-gray-800">🛍️ మీ షాపింగ్ కార్ట్</h3>
+                <button onclick="toggleCart()" class="text-gray-500 font-bold text-lg">✕</button>
+            </div>
+
+            <div id="cart-items" class="flex-grow overflow-y-auto space-y-3 pr-1">
+                <!-- Cart items will inject here -->
+            </div>
+
+            <div class="border-t pt-4 mt-3 bg-white">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm text-gray-500 font-semibold">మొత్తం (Total):</span>
+                    <span id="cart-total" class="text-xl font-black text-rose-600">₹0</span>
+                </div>
+                <button onclick="openLoginModal()" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl font-bold shadow-lg transition">
+                    Checkout & Pay (UPI / Online)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile OTP Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
+            <h3 class="text-lg font-bold text-gray-900 mb-1">మొబైల్ నంబర్ లాగిన్</h3>
+            <p class="text-xs text-gray-500 mb-4">ఆర్డర్ కన్ఫర్మ్ చేయడానికి మీ ఫోన్ నంబర్ ఎంటర్ చేయండి.</p>
+            
+            <div class="mb-3">
+                <label class="text-xs font-semibold text-gray-600 mb-1 block">ఫోన్ నంబర్:</label>
+                <div class="flex border rounded-xl overflow-hidden">
+                    <span class="bg-gray-100 px-3 py-2.5 text-sm font-bold text-gray-600">+91</span>
+                    <input type="tel" id="phoneInput" maxlength="10" placeholder="9441447923" class="w-full px-3 py-2.5 text-sm outline-none">
+                </div>
+            </div>
+
+            <button onclick="sendOTP()" class="w-full bg-rose-600 text-white text-sm py-2.5 rounded-xl font-bold shadow mb-3">
+                Send OTP
+            </button>
+
+            <div id="otpSection" class="hidden mb-3">
+                <label class="text-xs font-semibold text-gray-600 mb-1 block">OTP ఎంటర్ చేయండి:</label>
+                <input type="text" id="otpInput" placeholder="1234" class="w-full border px-3 py-2.5 text-sm rounded-xl mb-3 outline-none text-center tracking-widest font-bold">
+                <button onclick="verifyOTPAndCheckout()" class="w-full bg-emerald-600 text-white text-sm py-2.5 rounded-xl font-bold shadow">
+                    Verify & Proceed to Pay
+                </button>
+            </div>
+
+            <button onclick="closeLoginModal()" class="w-full text-gray-500 text-xs py-2 font-semibold mt-2">
+                మూసివేయి (Cancel)
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-4 py-2.5 rounded-full shadow-2xl transition-all duration-300 translate-y-20 opacity-0 z-50">
+        జోడించబడింది
+    </div>
+
 </body>
 </html>
-

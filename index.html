@@ -2,9 +2,9 @@
 <html lang="te">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Venkat Textiles - Online Store</title>
-    <script src="https://tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -44,25 +44,25 @@
                     const originalPrice = Math.round(priceNum * 1.4);
 
                     content += `
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col justify-between relative">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col justify-between relative">
                             <div class="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded z-10 shadow">
                                 30% off
                             </div>
-                            <img loading="lazy" class="h-48 w-full object-cover bg-gray-50" src="${p.image}" alt="${p.name}">
+                            <img loading="lazy" class="h-44 w-full object-cover bg-gray-100" src="${p.image}" alt="${p.name}">
                             <div class="p-3 flex flex-col flex-grow">
-                                <h3 class="font-bold text-gray-800 text-sm mb-1 truncate">${p.name}</h3>
-                                <p class="text-gray-500 text-[11px] mb-2 truncate">${p.description || 'Pure Wholesale Quality'}</p>
+                                <h3 class="font-bold text-gray-900 text-xs mb-1 truncate">${p.name}</h3>
+                                <p class="text-gray-500 text-[10px] mb-2 truncate">${p.description || 'Pure Wholesale Quality'}</p>
                                 
                                 <div class="flex items-center gap-2 mb-3">
-                                    <span class="text-base font-black text-rose-600">₹${priceNum}</span>
-                                    <span class="text-[11px] text-gray-400 line-through">₹${originalPrice}</span>
+                                    <span class="text-sm font-black text-rose-600">₹${priceNum}</span>
+                                    <span class="text-[10px] text-gray-400 line-through">₹${originalPrice}</span>
                                 </div>
 
-                                <div class="flex gap-1.5">
+                                <div class="flex gap-1.5 mt-auto">
                                     <button onclick="addToCart('${docId}', '${safeName}', ${priceNum}, '${p.image}')" class="flex-grow bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-lg font-bold text-xs shadow transition flex justify-center items-center gap-1">
                                         🛒 Add
                                     </button>
-                                    <button onclick="sendOrder('${safeName}', '${priceNum}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg font-bold shadow transition text-xs">
+                                    <button onclick="sendOrder('${safeName}', '${priceNum}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-2 rounded-lg font-bold shadow transition text-xs">
                                         💬
                                     </button>
                                 </div>
@@ -195,24 +195,26 @@
         window.onload = loadProducts;
     </script>
 </head>
-<body class="bg-gray-50 pb-20">
+<body class="bg-gray-100 pb-20">
 
+    <!-- Top App Header -->
     <header class="bg-rose-600 text-white p-3 sticky top-0 z-40 shadow-md flex justify-between items-center">
         <div>
-            <h1 class="text-base font-black tracking-wide">VENKAT TEXTILES</h1>
+            <h1 class="text-sm font-black tracking-wide">VENKAT TEXTILES</h1>
             <p class="text-[9px] text-rose-100">GSTIN: 37ADGPY4978G1ZR</p>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="toggleCart()" class="relative bg-rose-700 p-2 rounded-xl text-white">
-                🛒
-                <span id="cart-count" class="absolute -top-1 -right-1 bg-amber-400 text-gray-900 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow">0</span>
+            <button onclick="toggleCart()" class="relative bg-rose-700 p-2 rounded-xl text-white flex items-center gap-1 shadow">
+                🛒 <span id="cart-count" class="text-xs font-black">0</span>
             </button>
         </div>
     </header>
 
+    <!-- Main Section -->
     <main class="container mx-auto p-3">
-        <h2 class="text-sm font-bold text-gray-800 mb-3 border-l-4 border-rose-600 pl-2">మా లేటెస్ట్ కలెక్షన్స్</h2>
-        <div id="products-grid" class="grid grid-cols-2 gap-3">
+        <h2 class="text-xs font-bold text-gray-700 mb-2.5 uppercase tracking-wider">మా లేటెస్ట్ కలెక్షన్స్</h2>
+        <!-- 2 Column Mobile Grid -->
+        <div id="products-grid" class="grid grid-cols-2 gap-2.5">
             <p class="col-span-full text-center py-10 text-xs text-gray-500 animate-pulse">ప్రొడక్ట్స్ లోడ్ అవుతున్నాయి...</p>
         </div>
     </main>
@@ -247,17 +249,17 @@
             
             <div class="mb-2.5">
                 <label class="text-[11px] font-semibold text-gray-600 mb-1 block">మీ పూర్తి పేరు:</label>
-                <input type="text" id="custName" placeholder="ఉదా: వెంకట్" class="w-full border px-3 py-2 text-xs rounded-xl outline-none">
+                <input type="text" id="custName" placeholder="ఉదా: వెంకట్" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
             </div>
 
             <div class="mb-2.5">
                 <label class="text-[11px] font-semibold text-gray-600 mb-1 block">ఫోన్ నంబర్:</label>
-                <input type="tel" id="custPhone" maxlength="10" placeholder="9441447923" class="w-full border px-3 py-2 text-xs rounded-xl outline-none">
+                <input type="tel" id="custPhone" maxlength="10" placeholder="9441447923" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
             </div>
 
             <div class="mb-3.5">
                 <label class="text-[11px] font-semibold text-gray-600 mb-1 block">డెలివెరీ అడ్రస్ (Address):</label>
-                <textarea id="custAddress" rows="2" placeholder="ఇంటి నంబర్, ఊరు, పిన్ కోడ్" class="w-full border px-3 py-2 text-xs rounded-xl outline-none"></textarea>
+                <textarea id="custAddress" rows="2" placeholder="ఇంటి నంబర్, ఊరు, పిన్ కోడ్" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50"></textarea>
             </div>
 
             <button onclick="completeOrder()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 rounded-xl font-bold shadow mb-2.5 flex items-center justify-center gap-1.5">
@@ -277,4 +279,3 @@
 
 </body>
 </html>
-

@@ -53,9 +53,10 @@
                     </div>
                 </div>
 
+                <!-- Gallery Photo Upload Option -->
                 <div>
-                    <label class="text-xs font-semibold text-gray-600 mb-1 block">ఫోటో ఇమేజ్ లింక్ (Image URL / Postimage):</label>
-                    <input type="text" id="pImage" placeholder="https://i.postimg.cc/..." class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
+                    <label class="text-xs font-semibold text-gray-600 mb-1 block">గ్యాలరీ నుండి ఫోటో సెలెక్ట్ చేయండి:</label>
+                    <input type="file" id="pImageFile" accept="image/*" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100">
                 </div>
 
                 <div>
@@ -98,42 +99,52 @@
             const stock = document.getElementById('pStock').value;
             const category = document.getElementById('pCategory').value;
             const status = document.getElementById('pStatus').value;
-            const image = document.getElementById('pImage').value;
+            const fileInput = document.getElementById('pImageFile');
             const description = document.getElementById('pDesc').value;
 
-            if(!name || !price || !image) {
-                alert("దయచేసి ప్రొడక్ట్ పేరు, ధర మరియు ఇమేజ్ లింక్ తప్పకుండా ఇవ్వండి!");
+            if(!name || !price || fileInput.files.length === 0) {
+                alert("దయచేసి ప్రొడక్ట్ పేరు, ధర మరియు గ్యాలరీ నుండి ఫోటోని తప్పకుండా సెలెక్ట్ చేయండి!");
                 return;
             }
 
             const btn = document.getElementById('saveBtn');
-            btn.innerText = "సేవ్ అవుతోంది...";
+            btn.innerText = "ఫోటో అప్‌లోడ్ అవుతోంది...";
             btn.disabled = true;
 
-            try {
-                await addDoc(collection(db, "items"), {
-                    name,
-                    price: Number(price),
-                    stock: Number(stock),
-                    category,
-                    status,
-                    image,
-                    description,
-                    timestamp: Date.now()
-                });
+            const file = fileInput.files[0];
+            const reader = new FileReader();
 
-                alert("ప్రొడక్ట్ విజయవంతంగా యాడ్ చేయబడింది!");
-                document.getElementById('pName').value = '';
-                document.getElementById('pPrice').value = '';
-                document.getElementById('pImage').value = '';
-                document.getElementById('pDesc').value = '';
-                loadAdminProducts();
-            } catch (error) {
-                alert("ఎర్రర్ వచ్చింది: " + error.message);
-            } finally {
-                btn.innerText = "🚀 ప్రొడక్ట్ పబ్లిష్ చేయండి (Publish)";
-                btn.disabled = false;
-            }
+            reader.onloadid = async function(event) {}
+
+            reader.onload = async function(e) {
+                const base64Image = e.target.result; // Convert image to Base64 string for direct database save
+                try {
+                    await addDoc(collection(db, "items"), {
+                        name,
+                        price: Number(price),
+                        stock: Number(stock),
+                        category,
+                        status,
+                        image: base64Image,
+                        description,
+                        timestamp: Date.now()
+                    });
+
+                    alert("ప్రొడక్ట్ విజయవంతంగా పబ్లిష్ చేయబడింది!");
+                    document.getElementById('pName').value = '';
+                    document.getElementById('pPrice').value = '';
+                    fileInput.value = '';
+                    document.getElementById('pDesc').value = '';
+                    loadAdminProducts();
+                } catch (error) {
+                    alert("ఎర్రర్ వచ్చింది: " + error.message);
+                } finally {
+                    btn.innerText = "🚀 ప్రొడక్ట్ పబ్లిష్ చేయండి (Publish)";
+                    btn.disabled = false;
+                }
+            };
+
+            reader.readAsDataURL(file);
         }
 
         async function loadAdminProducts() {

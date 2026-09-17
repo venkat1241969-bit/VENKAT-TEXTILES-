@@ -200,13 +200,6 @@
             finalCartTotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
             document.getElementById('qrAmountText').innerText = `₹${finalCartTotal}`;
 
-            // Direct Verified Merchant UPI Intent Link Setup
-            const upiId = "8121911438@okbizaxis";
-            const payeeName = "Venkat Textiles";
-            const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${finalCartTotal}&cu=INR&tn=Order_${currentOrderId}`;
-            
-            document.getElementById('directUpiBtn').href = upiUrl;
-
             document.getElementById('checkoutModal').classList.add('hidden');
             document.getElementById('qrModal').classList.remove('hidden');
         }
@@ -215,13 +208,14 @@
             document.getElementById('qrModal').classList.add('hidden');
         }
 
+        // WhatsApp message triggers ONLY after payment completion confirmation
         window.finishOrderWhatsApp = function() {
             const name = document.getElementById('custName').value;
             const phone = document.getElementById('custPhone').value;
             const address = document.getElementById('custAddress').value;
             const pincode = document.getElementById('custPincode').value;
 
-            let orderSummary = `📦 *Shiprocket Order Details*\n`;
+            let orderSummary = `🚀 *New Verified Paid Order (Venkat Textiles)*\n`;
             orderSummary += `🆔 Order ID: *${currentOrderId}*\n\n`;
             orderSummary += `👤 పేరు: *${name}*\n`;
             orderSummary += `📞 ఫోన్: *${phone}*\n`;
@@ -236,7 +230,7 @@
             });
 
             orderSummary += `\n💰 మొత్తం బిల్లు (Total): *₹${total}*`;
-            orderSummary += `\n💳 పేమెంట్ పూర్తయింది (Merchant UPI: 8121911438@okbizaxis).`;
+            orderSummary += `\n✅ పేమెంట్ సక్సెస్ అయింది (Verified Merchant UPI: 8121911438@okbizaxis).`;
 
             const myNumber = "919441447923";
             window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(orderSummary)}`, '_blank');
@@ -267,7 +261,6 @@
             <div class="bg-white p-1.5 rounded-full shadow-md flex items-center justify-center w-9 h-9 border border-rose-200" title="Venkateswara Logo">
                 <span class="text-rose-700 font-bold text-xs">🛕</span>
             </div>
-            <!-- Cart Button Only (WhatsApp message button removed) -->
             <button onclick="toggleCart()" class="relative bg-rose-700 p-2 rounded-xl text-white flex items-center gap-1 shadow">
                 🛒 <span id="cart-count" class="text-xs font-black">0</span>
             </button>
@@ -340,7 +333,7 @@
             </div>
 
             <button onclick="proceedToPaymentQR()" class="w-full bg-rose-600 hover:bg-rose-700 text-white text-xs py-2.5 rounded-xl font-bold shadow mt-3 transition">
-                💳 డైరెక్ట్ పేమెంట్ & QR (Next)
+                📷 QR కోడ్ స్కాన్ చేసి పే చేయి (Next)
             </button>
 
             <button onclick="closeCheckoutModal()" class="w-full text-gray-500 text-[10px] py-1 font-semibold mt-1">
@@ -349,10 +342,10 @@
         </div>
     </div>
 
-    <!-- Direct Payment & QR Code Popup Modal -->
+    <!-- QR Code Scan & Pay Modal -->
     <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-xs rounded-2xl p-5 text-center shadow-2xl relative">
-            <h3 class="text-sm font-bold text-gray-900 mb-1">Merchant Payment</h3>
+            <h3 class="text-sm font-bold text-gray-900 mb-1">Scan & Pay via QR Code</h3>
             <p class="text-[11px] font-bold text-rose-600 mb-1">Venkat Textiles</p>
             <p class="text-[10px] text-gray-500 mb-2">UPI ID: 8121911438@okbizaxis</p>
             
@@ -360,21 +353,16 @@
                 <p class="text-[10px] text-gray-500 mb-1">చెల్లించవలసిన మొత్తం (Total Amount):</p>
                 <p id="qrAmountText" class="text-xl font-black text-rose-600 mb-2">₹0</p>
                 
-                <!-- Direct UPI App Button (KYC Verified) -->
-                <a id="directUpiBtn" href="#" class="block w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2.5 rounded-xl font-bold shadow mb-3 transition">
-                    📱 డైరెక్ట్ UPI యాప్ ఓపెన్ చేయి (GPay / PhonePay)
-                </a>
-
-                <div class="my-2 border-t border-gray-200 pt-2">
-                    <p class="text-[9px] text-gray-500 mb-1">లేదా క్యూఆర్ కోడ్ స్కాన్ చేయండి:</p>
-                    <div class="bg-white p-2 border inline-block rounded-lg shadow-sm">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x160&data=upi://pay?pa=8121911438@okbizaxis&pn=VenkatTextiles" alt="Merchant QR Code" class="w-32 h-32 mx-auto object-contain">
-                    </div>
+                <!-- Original Business QR Code Image Displayed Cleanly -->
+                <div class="bg-white p-2 border inline-block rounded-lg shadow-sm">
+                    <img src="https://i.postimg.cc/k47v0f81/1000646728.jpg" alt="Merchant QR Code" class="w-36 h-36 mx-auto object-contain">
                 </div>
+                <p class="text-[9px] text-gray-500 mt-2">మీ ఫోన్‌పే, గూగుల్ పే లేదా పేటీఎమ్ యాప్‌తో ఈ క్యూఆర్ కోడ్‌ని స్కాన్ చేసి అమౌంట్ పే చేయండి.</p>
             </div>
 
+            <!-- WhatsApp Order Dispatch triggers ONLY after Payment is Completed -->
             <button onclick="finishOrderWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 rounded-xl font-bold shadow mb-2 flex items-center justify-center gap-1">
-                💬 పేమెంట్ అయ్యాక వాట్సాప్‌కి పంపు
+                ✅ నేను పేమెంట్ చేశాను (Send Order to WhatsApp)
             </button>
 
             <button onclick="closeQRModal()" class="w-full text-gray-400 text-[10px] py-1 font-semibold">

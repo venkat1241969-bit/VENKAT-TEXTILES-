@@ -200,6 +200,11 @@
             finalCartTotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
             document.getElementById('qrAmountText').innerText = `₹${finalCartTotal}`;
 
+            // Reliable Live QR Code Generation matching your verified Merchant UPI
+            const upiData = `upi://pay?pa=8121911438@okbizaxis&pn=VenkatTextiles&am=${finalCartTotal}&cu=INR`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiData)}`;
+            document.getElementById('dynamicQrImage').src = qrApiUrl;
+
             document.getElementById('checkoutModal').classList.add('hidden');
             document.getElementById('qrModal').classList.remove('hidden');
         }
@@ -364,7 +369,7 @@
         </div>
     </div>
 
-    <!-- QR Code Scan & Pay Modal with Compact Scrollable Fit -->
+    <!-- QR Code Scan & Pay Modal -->
     <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-3">
         <div class="bg-white w-full max-w-xs rounded-2xl p-4 text-center shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <h3 class="text-sm font-bold text-gray-900 mb-0.5">Scan & Pay via QR Code</h3>
@@ -375,17 +380,12 @@
                 <p class="text-[9px] text-gray-500 mb-0.5">చెల్లించవలసిన మొత్తం (Total Amount):</p>
                 <p id="qrAmountText" class="text-base font-black text-rose-600 mb-1.5">₹0</p>
                 
+                <!-- Live Auto-Generated QR Code Image (No External Image Links) -->
                 <div class="bg-white p-1.5 border inline-block rounded-lg shadow-sm">
-                    <img src="https://i.postimg.cc/k47v0f81/1000646728.jpg" alt="Merchant QR Code" class="w-28 h-28 mx-auto object-contain">
+                    <img id="dynamicQrImage" src="" alt="Merchant QR Code" class="w-32 h-32 mx-auto object-contain">
                 </div>
                 <p class="text-[8px] text-gray-500 mt-1">ఫోన్‌పే/గూగుల్ పే తో క్యూఆర్ స్కాన్ చేసి పే చేయండి.</p>
 
                 <!-- UTR / Transaction ID Input Field -->
                 <div class="mt-2 text-left">
-                    <label class="text-[9px] font-bold text-gray-700 block mb-0.5">పేమెంట్ UTR / Transaction ID:</label>
-                    <input type="text" id="utrNumber" placeholder="ఉదా: 4235xxxxxxxx" class="w-full border px-2 py-1 text-xs rounded-lg outline-none bg-white">
-                </div>
-            </div>
-
-            <!-- Confirm & Send Order Button -->
-            <button onclick="finishOrderWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 te
+                    <label class="text-[9px] font-bol

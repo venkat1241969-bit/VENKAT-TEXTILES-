@@ -32,12 +32,16 @@
                         <input type="number" id="pPrice" placeholder="1316" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
                     </div>
                     <div>
-                        <label class="text-xs font-semibold text-gray-600 mb-1 block">స్టాక్ క్వాంటిటీ (Qty):</label>
-                        <input type="number" id="pStock" value="10" placeholder="10" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">డిస్కౌంట్ శాతం (%):</label>
+                        <input type="number" id="pDiscount" value="30" placeholder="30" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">స్టాక్ క్వాంటిటీ (Qty):</label>
+                        <input type="number" id="pStock" value="10" placeholder="10" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
+                    </div>
                     <div>
                         <label class="text-xs font-semibold text-gray-600 mb-1 block">కేటగిరీ (Catalog):</label>
                         <select id="pCategory" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
@@ -46,6 +50,9 @@
                             <option value="Dress Materials">Dress Materials</option>
                         </select>
                     </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="text-xs font-semibold text-gray-600 mb-1 block">స్టాక్ స్థితి (Status):</label>
                         <select id="pStatus" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
@@ -59,7 +66,7 @@
                 <div>
                     <label class="text-xs font-semibold text-gray-600 mb-1 block">గ్యాలరీ నుండి ఫోటో సెలెక్ట్ చేయండి:</label>
                     <input type="file" id="pImageFile" accept="image/*" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100">
-                    <p class="text-[10px] text-gray-400 mt-1">కొత్తగా ఎడిట్ చేసేటప్పుడు ఫోటో మార్చకపోతే పాతదే ఉంటుంది.</p>
+                    <p class="text-[10px] text-gray-400 mt-1">ఎడిట్ చేసేటప్పుడు ఫోటో మార్చకపోతే పాతదే ఉంటుంది.</p>
                 </div>
 
                 <div>
@@ -104,6 +111,7 @@
             const editId = document.getElementById('editDocId').value;
             const name = document.getElementById('pName').value;
             const price = document.getElementById('pPrice').value;
+            const discount = document.getElementById('pDiscount').value || "30";
             const stock = document.getElementById('pStock').value;
             const category = document.getElementById('pCategory').value;
             const status = document.getElementById('pStatus').value;
@@ -121,10 +129,10 @@
 
             try {
                 if (editId) {
-                    // Update existing product
                     const updateData = {
                         name,
                         price: Number(price),
+                        discount: Number(discount),
                         stock: Number(stock),
                         category,
                         status,
@@ -141,7 +149,6 @@
                     alert("ప్రొడక్ట్ విజయవంతంగా అప్‌డేట్ చేయబడింది!");
                     resetForm();
                 } else {
-                    // Add new product
                     if (fileInput.files.length === 0) {
                         alert("దయచేసి గ్యాలరీ నుండి ఫోటోని సెలెక్ట్ చేయండి!");
                         btn.innerText = "🚀 ప్రొడక్ట్ పబ్లిష్ చేయండి (Publish)";
@@ -154,6 +161,7 @@
                     await addDoc(collection(db, "items"), {
                         name,
                         price: Number(price),
+                        discount: Number(discount),
                         stock: Number(stock),
                         category,
                         status,
@@ -191,7 +199,7 @@
                 let html = '';
 
                 if (querySnapshot.empty) {
-                    listEl.innerHTML = `<p class="text-center text-xs text-gray-500 py-4">ప్రొడక్ట్స్ ఏవీ లేవు.</p>";`;
+                    listEl.innerHTML = `<p class="text-center text-xs text-gray-500 py-4">ప్రొడక్ట్స్ ఏవీ లేవు.</p>`;
                     return;
                 }
 
@@ -200,8 +208,8 @@
                     const id = docItem.id;
                     allProductsCache[id] = p;
                     const stockQty = Number(p.stock) || 0;
+                    const disc = p.discount || 30;
                     const isOut = (p.status === "Out of Stock" || stockQty <= 0);
-                    const isLow = (stockQty > 0 && stockQty <= 3);
 
                     html += `
                         <div class="bg-white rounded-xl p-3 border border-gray-200 flex items-center justify-between shadow-sm">
@@ -209,12 +217,10 @@
                                 <img src="${p.image}" class="w-12 h-12 object-cover rounded-lg bg-gray-100">
                                 <div>
                                     <h4 class="font-bold text-gray-800 text-xs truncate max-w-[130px]">${p.name}</h4>
-                                    <p class="text-rose-600 font-black text-xs">₹${p.price} <span class="text-[10px] text-gray-400 font-normal">(Qty: ${stockQty})</span></p>
-                                    <div class="flex gap-1 mt-0.5">
-                                        <span class="text-[9px] px-1.5 py-0.5 rounded font-bold ${isOut ? 'bg-red-100 text-red-700' : (isLow ? 'bg-orange-100 text-orange-700' : 'bg-emerald-100 text-emerald-700')}">
-                                            ${isOut ? 'Out of Stock' : (isLow ? '⚠️ Low Stock' : 'In Stock')}
-                                        </span>
-                                    </div>
+                                    <p class="text-rose-600 font-black text-xs">₹${p.price} <span class="text-[10px] text-gray-400 font-normal">(Disc: ${disc}%, Qty: ${stockQty})</span></p>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded font-bold ${isOut ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">
+                                        ${isOut ? 'Out of Stock' : 'In Stock'}
+                                    </span>
                                 </div>
                             </div>
                             <div class="flex gap-1.5">
@@ -241,6 +247,7 @@
             document.getElementById('editDocId').value = id;
             document.getElementById('pName').value = p.name || '';
             document.getElementById('pPrice').value = p.price || '';
+            document.getElementById('pDiscount').value = p.discount || 30;
             document.getElementById('pStock').value = p.stock || 10;
             document.getElementById('pCategory').value = p.category || 'Sarees';
             document.getElementById('pStatus').value = p.status || 'In Stock';
@@ -256,6 +263,7 @@
             document.getElementById('editDocId').value = '';
             document.getElementById('pName').value = '';
             document.getElementById('pPrice').value = '';
+            document.getElementById('pDiscount').value = '30';
             document.getElementById('pStock').value = '10';
             document.getElementById('pImageFile').value = '';
             document.getElementById('pDesc').value = '';

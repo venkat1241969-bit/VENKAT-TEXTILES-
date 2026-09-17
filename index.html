@@ -55,28 +55,28 @@
                             <div class="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded z-10 shadow">
                                 ${discountVal}% off
                             </div>
-                            <img loading="lazy" class="h-44 w-full object-cover bg-gray-100 ${isOut ? 'grayscale opacity-60' : ''}" src="${p.image}" alt="${p.name}">
+                            <img loading="lazy" class="h-40 w-full object-cover bg-gray-100 ${isOut ? 'grayscale opacity-60' : ''}" src="${p.image}" alt="${p.name}">
                             
-                            <div class="p-3 flex flex-col flex-grow">
+                            <div class="p-2.5 flex flex-col flex-grow">
                                 <h3 class="font-bold text-gray-900 text-xs mb-1 truncate">${p.name}</h3>
-                                <p class="text-gray-500 text-[10px] mb-2 truncate">${p.description || 'Pure Wholesale Quality'}</p>
+                                <p class="text-gray-500 text-[9px] mb-1.5 truncate">${p.description || 'Pure Wholesale Quality'}</p>
                                 
                                 <div class="flex justify-between items-center mb-1">
-                                    <span class="text-sm font-black text-rose-600">₹${priceNum}</span>
-                                    <span class="text-[10px] text-gray-400 line-through">₹${originalPrice}</span>
+                                    <span class="text-xs font-black text-rose-600">₹${priceNum}</span>
+                                    <span class="text-[9px] text-gray-400 line-through">₹${originalPrice}</span>
                                 </div>
 
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     ${isOut ? 
-                                        `<span class="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200">❌ Out of Stock</span>` :
-                                        `<span class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">📦 Stock: ${stockQty} Left</span>`
+                                        `<span class="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">❌ Out of Stock</span>` :
+                                        `<span class="text-[9px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">📦 Stock: ${stockQty} Left</span>`
                                     }
                                 </div>
 
                                 <div class="mt-auto">
                                     ${isOut ? 
-                                        `<button disabled class="w-full bg-gray-300 text-gray-500 py-2 rounded-lg font-bold text-xs cursor-not-allowed">అందుబాటులో లేదు</button>` :
-                                        `<button onclick="addToCart('${docId}')" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-lg font-bold text-xs shadow transition flex justify-center items-center gap-1">🛒 Add to Cart</button>`
+                                        `<button disabled class="w-full bg-gray-300 text-gray-500 py-1.5 rounded-lg font-bold text-[11px] cursor-not-allowed">అందుబాటులో లేదు</button>` :
+                                        `<button onclick="addToCart('${docId}')" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-1.5 rounded-lg font-bold text-[11px] shadow transition flex justify-center items-center gap-1">🛒 Add to Cart</button>`
                                     }
                                 </div>
                             </div>
@@ -136,7 +136,7 @@
             countEl.innerText = totalItems;
 
             if (cart.length === 0) {
-                itemsEl.innerHTML = `<p class="text-gray-400 text-center py-8 text-xs">మీ కార్ట్ ఖాళీగా ఉంది</p>`;
+                itemsEl.innerHTML = `<p class="text-gray-400 text-center py-6 text-xs">మీ కార్ట్ ఖాళీగా ఉంది</p>`;
                 totalEl.innerText = "₹0";
                 return;
             }
@@ -147,13 +147,13 @@
             cart.forEach(i => {
                 subtotal += i.price * i.qty;
                 html += `
-                    <div class="flex items-center justify-between gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                        <img src="${i.image}" class="w-12 h-12 object-cover rounded-lg">
+                    <div class="flex items-center justify-between gap-2 bg-gray-50 p-2 rounded-xl border border-gray-100">
+                        <img src="${i.image}" class="w-10 h-10 object-cover rounded-lg">
                         <div class="flex-grow">
-                            <h4 class="font-bold text-gray-800 text-xs truncate max-w-[120px]">${i.name}</h4>
+                            <h4 class="font-bold text-gray-800 text-xs truncate max-w-[110px]">${i.name}</h4>
                             <p class="text-rose-600 font-black text-xs">₹${i.price * i.qty}</p>
                         </div>
-                        <div class="flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-2 py-0.5">
+                        <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-2 py-0.5">
                             <button onclick="updateQty('${i.id}', -1)" class="text-gray-500 font-bold px-1 text-xs">-</button>
                             <span class="text-xs font-bold">${i.qty}</span>
                             <button onclick="updateQty('${i.id}', 1)" class="text-rose-600 font-bold px-1 text-xs">+</button>
@@ -208,7 +208,6 @@
             document.getElementById('qrModal').classList.add('hidden');
         }
 
-        // WhatsApp Order Dispatch + Automatic Stock Reduction in Firebase
         window.finishOrderWhatsApp = async function() {
             const utrNumber = document.getElementById('utrNumber').value.trim();
             if(!utrNumber || utrNumber.length < 6) {
@@ -221,7 +220,6 @@
             const address = document.getElementById('custAddress').value;
             const pincode = document.getElementById('custPincode').value;
 
-            // Reduce Stock in Firebase for each ordered item
             try {
                 for (const item of cart) {
                     const productData = fetchedProducts[item.id];
@@ -327,7 +325,7 @@
     </div>
 
     <!-- Shiprocket Customer Details & Address Modal -->
-    <div id="checkoutModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-4">
+    <div id="checkoutModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-3">
         <div class="bg-white w-full max-w-xs rounded-2xl p-4 shadow-2xl relative">
             <div class="flex justify-between items-center mb-1">
                 <h3 class="text-sm font-bold text-gray-900">📦 Shiprocket డెలివెరీ అడ్రస్</h3>
@@ -366,25 +364,28 @@
         </div>
     </div>
 
-    <!-- QR Code Scan & Pay Modal with UTR Proof Entry -->
-    <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-xs rounded-2xl p-5 text-center shadow-2xl relative">
-            <h3 class="text-sm font-bold text-gray-900 mb-1">Scan & Pay via QR Code</h3>
-            <p class="text-[11px] font-bold text-rose-600 mb-1">Venkat Textiles</p>
-            <p class="text-[10px] text-gray-500 mb-2">UPI ID: 8121911438@okbizaxis</p>
+    <!-- QR Code Scan & Pay Modal with Compact Scrollable Fit -->
+    <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-3">
+        <div class="bg-white w-full max-w-xs rounded-2xl p-4 text-center shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <h3 class="text-sm font-bold text-gray-900 mb-0.5">Scan & Pay via QR Code</h3>
+            <p class="text-[10px] font-bold text-rose-600 mb-0.5">Venkat Textiles</p>
+            <p class="text-[9px] text-gray-500 mb-1.5">UPI ID: 8121911438@okbizaxis</p>
             
-            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mb-3">
-                <p class="text-[10px] text-gray-500 mb-1">చెల్లించవలసిన మొత్తం (Total Amount):</p>
-                <p id="qrAmountText" class="text-xl font-black text-rose-600 mb-2">₹0</p>
+            <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-200 mb-2.5">
+                <p class="text-[9px] text-gray-500 mb-0.5">చెల్లించవలసిన మొత్తం (Total Amount):</p>
+                <p id="qrAmountText" class="text-base font-black text-rose-600 mb-1.5">₹0</p>
                 
-                <div class="bg-white p-2 border inline-block rounded-lg shadow-sm">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi://pay?pa=8121911438@okbizaxis&pn=VenkatTextiles" alt="Merchant QR Code" class="w-32 h-32 mx-auto object-contain">
+                <div class="bg-white p-1.5 border inline-block rounded-lg shadow-sm">
+                    <img src="https://i.postimg.cc/k47v0f81/1000646728.jpg" alt="Merchant QR Code" class="w-28 h-28 mx-auto object-contain">
                 </div>
-                <p class="text-[9px] text-gray-500 mt-1">ఫోన్‌పే/గూగుల్ పే తో క్యూఆర్ స్కాన్ చేసి పే చేయండి.</p>
+                <p class="text-[8px] text-gray-500 mt-1">ఫోన్‌పే/గూగుల్ పే తో క్యూఆర్ స్కాన్ చేసి పే చేయండి.</p>
 
-                <!-- UTR / Transaction ID Input Field for Proof -->
-                <div class="mt-3 text-left">
-                    <label class="text-[10px] font-bold text-gray-700 block mb-1">పేమెంట్ UTR / Transaction ID ఇక్కడ రాయండి:</label>
-                    <input type="text" id="utrNumber" placeholder="ఉదా: 4235xxxxxxxx" class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-white">
+                <!-- UTR / Transaction ID Input Field -->
+                <div class="mt-2 text-left">
+                    <label class="text-[9px] font-bold text-gray-700 block mb-0.5">పేమెంట్ UTR / Transaction ID:</label>
+                    <input type="text" id="utrNumber" placeholder="ఉదా: 4235xxxxxxxx" class="w-full border px-2 py-1 text-xs rounded-lg outline-none bg-white">
                 </div>
-     
+            </div>
+
+            <!-- Confirm & Send Order Button -->
+            <button onclick="finishOrderWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 te

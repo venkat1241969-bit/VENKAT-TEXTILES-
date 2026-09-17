@@ -43,23 +43,17 @@
                         <input type="number" id="pStock" value="10" placeholder="10" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
                     </div>
                     <div>
-                        <label class="text-xs font-semibold text-gray-600 mb-1 block">కేటగిరీ (Catalog):</label>
-                        <select id="pCategory" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
-                            <option value="Sarees">Sarees (చీరలు)</option>
-                            <option value="Kurtis">Kurtis (కుర్తీలు)</option>
-                            <option value="Dress Materials">Dress Materials</option>
-                        </select>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">కేటగిరీ (Category - Manual):</label>
+                        <input type="text" id="pCategory" placeholder="ఉదా: Sarees" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs font-semibold text-gray-600 mb-1 block">స్టాక్ స్థితి (Status):</label>
-                        <select id="pStatus" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
-                            <option value="In Stock">In Stock (అందుబాటులో ఉంది)</option>
-                            <option value="Out of Stock">Out of Stock (అయిపోయింది)</option>
-                        </select>
-                    </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-600 mb-1 block">స్టాక్ స్థితి (Status):</label>
+                    <select id="pStatus" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
+                        <option value="In Stock">In Stock (అందుబాటులో ఉంది)</option>
+                        <option value="Out of Stock">Out of Stock (అయిపోయింది)</option>
+                    </select>
                 </div>
 
                 <!-- Gallery Photo Upload Option -->
@@ -113,7 +107,7 @@
             const price = document.getElementById('pPrice').value;
             const discount = document.getElementById('pDiscount').value || "30";
             const stock = document.getElementById('pStock').value;
-            const category = document.getElementById('pCategory').value;
+            const category = document.getElementById('pCategory').value || "General";
             const status = document.getElementById('pStatus').value;
             const fileInput = document.getElementById('pImageFile');
             const description = document.getElementById('pDesc').value;
@@ -209,6 +203,7 @@
                     allProductsCache[id] = p;
                     const stockQty = Number(p.stock) || 0;
                     const disc = p.discount || 30;
+                    const cat = p.category || 'General';
                     const isOut = (p.status === "Out of Stock" || stockQty <= 0);
 
                     html += `
@@ -217,7 +212,8 @@
                                 <img src="${p.image}" class="w-12 h-12 object-cover rounded-lg bg-gray-100">
                                 <div>
                                     <h4 class="font-bold text-gray-800 text-xs truncate max-w-[130px]">${p.name}</h4>
-                                    <p class="text-rose-600 font-black text-xs">₹${p.price} <span class="text-[10px] text-gray-400 font-normal">(Disc: ${disc}%, Qty: ${stockQty})</span></p>
+                                    <p class="text-rose-600 font-black text-xs">₹${p.price} <span class="text-[10px] text-gray-400 font-normal">(${cat})</span></p>
+                                    <p class="text-[10px] text-gray-500">Qty: ${stockQty} | Disc: ${disc}%</p>
                                     <span class="text-[9px] px-1.5 py-0.5 rounded font-bold ${isOut ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">
                                         ${isOut ? 'Out of Stock' : 'In Stock'}
                                     </span>
@@ -249,7 +245,7 @@
             document.getElementById('pPrice').value = p.price || '';
             document.getElementById('pDiscount').value = p.discount || 30;
             document.getElementById('pStock').value = p.stock || 10;
-            document.getElementById('pCategory').value = p.category || 'Sarees';
+            document.getElementById('pCategory').value = p.category || '';
             document.getElementById('pStatus').value = p.status || 'In Stock';
             document.getElementById('pDesc').value = p.description || '';
 
@@ -265,6 +261,7 @@
             document.getElementById('pPrice').value = '';
             document.getElementById('pDiscount').value = '30';
             document.getElementById('pStock').value = '10';
+            document.getElementById('pCategory').value = '';
             document.getElementById('pImageFile').value = '';
             document.getElementById('pDesc').value = '';
             document.getElementById('formTitle').innerText = "➕ కొత్త ప్రొడక్ట్ జోడించండి";

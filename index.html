@@ -25,6 +25,7 @@
         let cart = [];
         let fetchedProducts = {};
         let currentOrderId = "";
+        let finalCartTotal = 0;
 
         window.loadProducts = async function() {
             const grid = document.getElementById('products-grid');
@@ -43,9 +44,8 @@
                     const docId = docItem.id;
                     fetchedProducts[docId] = p;
 
-                    const safeName = p.name ? p.name.replace(/'/g, "\\'") : '';
                     const priceNum = Number(p.price) || 0;
-                    const discountVal = Number(p.discount) || 30; // Dynamic discount from admin
+                    const discountVal = Number(p.discount) || 30;
                     const originalPrice = Math.round(priceNum / (1 - (discountVal / 100)));
                     const stockQty = Number(p.stock) || 0;
                     const isOut = (p.status === "Out of Stock" || stockQty <= 0);
@@ -73,11 +73,10 @@
                                     }
                                 </div>
 
-                                <div class="flex gap-1.5 mt-auto">
+                                <div class="mt-auto">
                                     ${isOut ? 
                                         `<button disabled class="w-full bg-gray-300 text-gray-500 py-2 rounded-lg font-bold text-xs cursor-not-allowed">అందుబాటులో లేదు</button>` :
-                                        `<button onclick="addToCart('${docId}')" class="flex-grow bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-lg font-bold text-xs shadow transition flex justify-center items-center gap-1">🛒 Add</button>
-                                         <button onclick="sendOrder('${safeName}', '${priceNum}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-2 rounded-lg font-bold shadow transition text-xs">💬</button>`
+                                        `<button onclick="addToCart('${docId}')" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-lg font-bold text-xs shadow transition flex justify-center items-center gap-1">🛒 Add to Cart</button>`
                                     }
                                 </div>
                             </div>
@@ -198,8 +197,15 @@
                 return;
             }
 
-            let total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-            document.getElementById('qrAmountText').innerText = `₹${total}`;
+            finalCartTotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            document.getElementById('qrAmountText').innerText = `₹${finalCartTotal}`;
+
+            // Direct Verified Merchant UPI Intent Link Setup
+            const upiId = "8121911438@okbizaxis";
+            const payeeName = "Venkat Textiles";
+            const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${finalCartTotal}&cu=INR&tn=Order_${currentOrderId}`;
+            
+            document.getElementById('directUpiBtn').href = upiUrl;
 
             document.getElementById('checkoutModal').classList.add('hidden');
             document.getElementById('qrModal').classList.remove('hidden');
@@ -236,12 +242,6 @@
             window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(orderSummary)}`, '_blank');
         }
 
-        window.sendOrder = function(name, price) {
-            const myNumber = "919441447923";
-            const text = `హలో Venkat Textiles, నేను ఈ ప్రొడక్ట్ ఆర్డర్ చేయాలనుకుంటున్నాను:\n\nSaree: *${name}*\nPrice: *₹${price}*`;
-            window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(text)}`, '_blank');
-        }
-
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg;
@@ -267,6 +267,7 @@
             <div class="bg-white p-1.5 rounded-full shadow-md flex items-center justify-center w-9 h-9 border border-rose-200" title="Venkateswara Logo">
                 <span class="text-rose-700 font-bold text-xs">🛕</span>
             </div>
+            <!-- Cart Button Only (WhatsApp message button removed) -->
             <button onclick="toggleCart()" class="relative bg-rose-700 p-2 rounded-xl text-white flex items-center gap-1 shadow">
                 🛒 <span id="cart-count" class="text-xs font-black">0</span>
             </button>
@@ -339,7 +340,7 @@
             </div>
 
             <button onclick="proceedToPaymentQR()" class="w-full bg-rose-600 hover:bg-rose-700 text-white text-xs py-2.5 rounded-xl font-bold shadow mt-3 transition">
-                📱 QR కోడ్ చూడు (Next)
+                💳 డైరెక్ట్ పేమెంట్ & QR (Next)
             </button>
 
             <button onclick="closeCheckoutModal()" class="w-full text-gray-500 text-[10px] py-1 font-semibold mt-1">
@@ -348,10 +349,10 @@
         </div>
     </div>
 
-    <!-- QR Code Payment Popup Modal -->
+    <!-- Direct Payment & QR Code Popup Modal -->
     <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-xs rounded-2xl p-5 text-center shadow-2xl relative">
-            <h3 class="text-sm font-bold text-gray-900 mb-1">Scan & Pay via Google Pay</h3>
+            <h3 class="text-sm font-bold text-gray-900 mb-1">Merchant Payment</h3>
             <p class="text-[11px] font-bold text-rose-600 mb-1">Venkat Textiles</p>
             <p class="text-[10px] text-gray-500 mb-2">UPI ID: 8121911438@okbizaxis</p>
             
@@ -359,10 +360,17 @@
                 <p class="text-[10px] text-gray-500 mb-1">చెల్లించవలసిన మొత్తం (Total Amount):</p>
                 <p id="qrAmountText" class="text-xl font-black text-rose-600 mb-2">₹0</p>
                 
-                <div class="bg-white p-2 border inline-block rounded-lg shadow-sm">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi://pay?pa=8121911438@okbizaxis&pn=VenkatTextiles" alt="Merchant QR Code" class="w-40 h-40 mx-auto object-contain">
+                <!-- Direct UPI App Button (KYC Verified) -->
+                <a id="directUpiBtn" href="#" class="block w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2.5 rounded-xl font-bold shadow mb-3 transition">
+                    📱 డైరెక్ట్ UPI యాప్ ఓపెన్ చేయి (GPay / PhonePay)
+                </a>
+
+                <div class="my-2 border-t border-gray-200 pt-2">
+                    <p class="text-[9px] text-gray-500 mb-1">లేదా క్యూఆర్ కోడ్ స్కాన్ చేయండి:</p>
+                    <div class="bg-white p-2 border inline-block rounded-lg shadow-sm">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x160&data=upi://pay?pa=8121911438@okbizaxis&pn=VenkatTextiles" alt="Merchant QR Code" class="w-32 h-32 mx-auto object-contain">
+                    </div>
                 </div>
-                <p class="text-[9px] text-gray-500 mt-2">మీ ఫోన్‌పే లేదా గూగుల్ పే తో ఈ క్యూఆర్ కోడ్‌ని స్కాన్ చేసి పే చేయండి</p>
             </div>
 
             <button onclick="finishOrderWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 rounded-xl font-bold shadow mb-2 flex items-center justify-center gap-1">
@@ -382,4 +390,3 @@
 
 </body>
 </html>
-

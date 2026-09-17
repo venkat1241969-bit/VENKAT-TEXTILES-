@@ -55,28 +55,28 @@
                             <div class="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded z-10 shadow">
                                 ${discountVal}% off
                             </div>
-                            <img loading="lazy" class="h-40 w-full object-cover bg-gray-100 ${isOut ? 'grayscale opacity-60' : ''}" src="${p.image}" alt="${p.name}">
+                            <img loading="lazy" class="h-36 w-full object-cover bg-gray-100 ${isOut ? 'grayscale opacity-60' : ''}" src="${p.image}" alt="${p.name}">
                             
-                            <div class="p-2.5 flex flex-col flex-grow">
-                                <h3 class="font-bold text-gray-900 text-xs mb-1 truncate">${p.name}</h3>
-                                <p class="text-gray-500 text-[9px] mb-1.5 truncate">${p.description || 'Pure Wholesale Quality'}</p>
+                            <div class="p-2 flex flex-col flex-grow">
+                                <h3 class="font-bold text-gray-900 text-xs mb-0.5 truncate">${p.name}</h3>
+                                <p class="text-gray-500 text-[9px] mb-1 truncate">${p.description || 'Pure Wholesale Quality'}</p>
                                 
                                 <div class="flex justify-between items-center mb-1">
                                     <span class="text-xs font-black text-rose-600">₹${priceNum}</span>
                                     <span class="text-[9px] text-gray-400 line-through">₹${originalPrice}</span>
                                 </div>
 
-                                <div class="mb-2">
+                                <div class="mb-1.5">
                                     ${isOut ? 
-                                        `<span class="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">❌ Out of Stock</span>` :
-                                        `<span class="text-[9px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">📦 Stock: ${stockQty} Left</span>`
+                                        `<span class="text-[9px] font-bold text-red-600 bg-red-50 px-1 py-0.5 rounded border border-red-200">❌ Out of Stock</span>` :
+                                        `<span class="text-[9px] font-semibold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded border border-emerald-200">📦 Stock: ${stockQty} Left</span>`
                                     }
                                 </div>
 
                                 <div class="mt-auto">
                                     ${isOut ? 
-                                        `<button disabled class="w-full bg-gray-300 text-gray-500 py-1.5 rounded-lg font-bold text-[11px] cursor-not-allowed">అందుబాటులో లేదు</button>` :
-                                        `<button onclick="addToCart('${docId}')" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-1.5 rounded-lg font-bold text-[11px] shadow transition flex justify-center items-center gap-1">🛒 Add to Cart</button>`
+                                        `<button disabled class="w-full bg-gray-300 text-gray-500 py-1.5 rounded-lg font-bold text-[10px] cursor-not-allowed">అందుబాటులో లేదు</button>` :
+                                        `<button onclick="addToCart('${docId}')" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-1.5 rounded-lg font-bold text-[10px] shadow transition flex justify-center items-center gap-1">🛒 Add to Cart</button>`
                                     }
                                 </div>
                             </div>
@@ -148,12 +148,12 @@
                 subtotal += i.price * i.qty;
                 html += `
                     <div class="flex items-center justify-between gap-2 bg-gray-50 p-2 rounded-xl border border-gray-100">
-                        <img src="${i.image}" class="w-10 h-10 object-cover rounded-lg">
+                        <img src="${i.image}" class="w-9 h-9 object-cover rounded-lg">
                         <div class="flex-grow">
                             <h4 class="font-bold text-gray-800 text-xs truncate max-w-[110px]">${i.name}</h4>
                             <p class="text-rose-600 font-black text-xs">₹${i.price * i.qty}</p>
                         </div>
-                        <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-2 py-0.5">
+                        <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-1.5 py-0.5">
                             <button onclick="updateQty('${i.id}', -1)" class="text-gray-500 font-bold px-1 text-xs">-</button>
                             <span class="text-xs font-bold">${i.qty}</span>
                             <button onclick="updateQty('${i.id}', 1)" class="text-rose-600 font-bold px-1 text-xs">+</button>
@@ -200,9 +200,8 @@
             finalCartTotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
             document.getElementById('qrAmountText').innerText = `₹${finalCartTotal}`;
 
-            // Reliable Live QR Code Generation matching your verified Merchant UPI
             const upiData = `upi://pay?pa=8121911438@okbizaxis&pn=VenkatTextiles&am=${finalCartTotal}&cu=INR`;
-            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiData)}`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(upiData)}`;
             document.getElementById('dynamicQrImage').src = qrApiUrl;
 
             document.getElementById('checkoutModal').classList.add('hidden');
@@ -369,23 +368,22 @@
         </div>
     </div>
 
-    <!-- QR Code Scan & Pay Modal -->
-    <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-3">
-        <div class="bg-white w-full max-w-xs rounded-2xl p-4 text-center shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <h3 class="text-sm font-bold text-gray-900 mb-0.5">Scan & Pay via QR Code</h3>
-            <p class="text-[10px] font-bold text-rose-600 mb-0.5">Venkat Textiles</p>
-            <p class="text-[9px] text-gray-500 mb-1.5">UPI ID: 8121911438@okbizaxis</p>
+    <!-- QR Code Scan & Pay Modal (Compact Fit for all screens) -->
+    <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-2">
+        <div class="bg-white w-full max-w-[280px] rounded-2xl p-3 text-center shadow-2xl relative max-h-[95vh] overflow-y-auto">
+            <h3 class="text-xs font-bold text-gray-900 mb-0">Scan & Pay via QR Code</h3>
+            <p class="text-[10px] font-bold text-rose-600 mb-0">Venkat Textiles</p>
+            <p class="text-[8px] text-gray-500 mb-1">UPI ID: 8121911438@okbizaxis</p>
             
-            <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-200 mb-2.5">
-                <p class="text-[9px] text-gray-500 mb-0.5">చెల్లించవలసిన మొత్తం (Total Amount):</p>
-                <p id="qrAmountText" class="text-base font-black text-rose-600 mb-1.5">₹0</p>
+            <div class="bg-gray-50 p-2 rounded-xl border border-gray-200 mb-2">
+                <p class="text-[8px] text-gray-500 mb-0">చెల్లించవలసిన మొత్తం:</p>
+                <p id="qrAmountText" class="text-sm font-black text-rose-600 mb-1">₹0</p>
                 
-                <!-- Live Auto-Generated QR Code Image (No External Image Links) -->
-                <div class="bg-white p-1.5 border inline-block rounded-lg shadow-sm">
-                    <img id="dynamicQrImage" src="" alt="Merchant QR Code" class="w-32 h-32 mx-auto object-contain">
+                <div class="bg-white p-1 border inline-block rounded-lg shadow-sm">
+                    <img id="dynamicQrImage" src="" alt="Merchant QR Code" class="w-24 h-24 mx-auto object-contain">
                 </div>
-                <p class="text-[8px] text-gray-500 mt-1">ఫోన్‌పే/గూగుల్ పే తో క్యూఆర్ స్కాన్ చేసి పే చేయండి.</p>
+                <p class="text-[8px] text-gray-500 mt-0.5">ఫోన్‌పే/గూగుల్ పే తో క్యూఆర్ స్కాన్ చేసి పే చేయండి.</p>
 
-                <!-- UTR / Transaction ID Input Field -->
-                <div class="mt-2 text-left">
-                    <label class="text-[9px] font-bol
+                <div class="mt-1.5 text-left">
+                    <label class="text-[8px] font-bold text-gray-700 block mb-0.5">పేమెంట్ UTR / Transaction ID:</label>
+                    <input type="text" id="utrNumber" placeholder="ఉదా: 4235xxxxxxxx" class="w-full border px-1.5 py-1 text-[10px] rounded-lg outline-none bg

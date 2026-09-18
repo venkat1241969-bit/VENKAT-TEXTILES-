@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, setDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBPOp8NtMBP09rNtCGe5-wRre6Y_Zt5g0M",
@@ -192,7 +192,7 @@ window.proceedToPaymentQR = function() {
     document.getElementById('qrAmountText').innerText = `₹${finalCartTotal}`;
 
     const upiData = `upi://pay?pa=8121911438@okbizaxis&pn=VenkatTextiles&am=${finalCartTotal}&cu=INR`;
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(upiData)}`;
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiData)}`;
     document.getElementById('dynamicQrImage').src = qrApiUrl;
 
     document.getElementById('checkoutModal').classList.add('hidden');
@@ -201,6 +201,61 @@ window.proceedToPaymentQR = function() {
 
 window.closeQRModal = function() {
     document.getElementById('qrModal').classList.add('hidden');
+}
+
+window.openMyOrdersModal = function() {
+    document.getElementById('myOrdersModal').classList.remove('hidden');
+}
+
+window.closeMyOrdersModal = function() {
+    document.getElementById('myOrdersModal').classList.add('hidden');
+}
+
+// Fetch Customer Orders from Firestore
+window.fetchCustomerOrders = async function() {
+    const phone = document.getElementById('searchPhone').value.trim();
+    const container = document.getElementById('ordersListContainer');
+
+    if(phone.length !== 10) {
+        alert("దయచేసి సరైన 10 అంకెల ఫోన్ నంబర్ ఎంటర్ చేయండి.");
+        return;
+    }
+
+    container.innerHTML = `<p class="text-gray-500 text-center text-xs py-4">ఆర్డర్లు వెతుకుతోంది...</p>`;
+
+    try {
+        const q = query(collection(db, "orders"), where("phone", "==", phone));
+        const querySnapshot = await getDocs(q);
+
+        if(querySnapshot.empty) {
+            container.innerHTML = `<p class="text-red-500 text-center text-xs py-6">ఈ నంబర్ మీద ఎటువంటి ఆర్డర్లు కనుగొనబడలేదు.</p>`;
+            return;
+        }
+
+        let html = '';
+        querySnapshot.forEach((docSnap) => {
+            const ord = docSnap.data();
+            html += `
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs space-y-1">
+                    <div class="flex justify-between font-bold text-gray-900 border-b pb-1">
+                        <span>🆔 ${ord.orderId}</span>
+                        <span class="text-rose-600">₹${ord.total}</span>
+                    </div>
+                    <p class="text-[10px] text-gray-600"><b>పేరు:</b> ${ord.name}</p>
+                    <p class="text-[10px] text-gray-600"><b>అడ్రస్:</b> ${ord.address} (${ord.pincode})</p>
+                    <p class="text-[10px] text-gray-600"><b>UTR ID:</b> ${ord.utrNumber}</p>
+                    <div class="bg-emerald-50 border border-emerald-200 p-2 rounded-lg mt-1 text-[10px]">
+                        <p class="text-emerald-800 font-bold">🚚 షిప్పింగ్ / వేబిల్లు వివరాలు:</p>
+                        <p><b>Waybill / Tracking:</b> ${ord.waybill || 'అడ్మిన్ అప్‌డేట్ చేయాలి (Pending)'}</p>
+                        <p><b>Shipping Date:</b> ${ord.shippingDate || 'త్వరలో అప్‌డేట్ చేయబడుతుంది'}</p>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } catch(e) {
+        container.innerHTML = `<p class="text-red-500 text-center text-xs py-4">లోపం ఏర్పడింది: ${e.message}</p>`;
+    }
 }
 
 window.finishOrderWhatsApp = async function() {
@@ -215,7 +270,26 @@ window.finishOrderWhatsApp = async function() {
     const address = document.getElementById('custAddress').value;
     const pincode = document.getElementById('custPincode').value;
 
+    let total = 0;
+    cart.forEach(i => { total += i.price * i.qty; });
+
+    // Save Order to Firestore so it appears in "My Orders" and Admin can update Waybill/Date
     try {
+        await setDoc(doc(db, "orders", currentOrderId), {
+            orderId: currentOrderId,
+            name: name,
+            phone: phone,
+            address: address,
+            pincode: pincode,
+            items: cart,
+            total: total,
+            utrNumber: utrNumber,
+            waybill: "",
+            shippingDate: "",
+            timestamp: new Date().toISOString()
+        });
+
+        // Reduce Stock in Firebase
         for (const item of cart) {
             const productData = fetchedProducts[item.id];
             const currentStock = Number(productData.stock) || 0;
@@ -228,7 +302,7 @@ window.finishOrderWhatsApp = async function() {
             });
         }
     } catch (err) {
-        console.error("Stock update error: ", err);
+        console.error("Order save/stock error: ", err);
     }
 
     let orderSummary = `🚀 *New Paid Order with UTR Proof (Venkat Textiles)*\n`;
@@ -240,10 +314,8 @@ window.finishOrderWhatsApp = async function() {
     orderSummary += `📮 పిన్‌కోడ్: *${pincode}*\n\n`;
     orderSummary += `🛒 ప్రొడక్ట్స్:\n`;
     
-    let total = 0;
     cart.forEach(i => {
         orderSummary += `- ${i.name} (${i.qty} pcs) : ₹${i.price * i.qty}\n`;
-        total += i.price * i.qty;
     });
 
     orderSummary += `\n💰 మొత్తం బిల్లు (Total): *₹${total}*`;
@@ -263,4 +335,4 @@ function showToast(msg) {
 }
 
 window.onload = loadProducts;
-      
+        

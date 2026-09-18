@@ -21,7 +21,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Add Product with Gallery Image Selection (Converted to Base64)
         window.addProduct = async function(event) {
             event.preventDefault();
             const name = document.getElementById('prodName').value;
@@ -106,7 +105,7 @@
             }
         };
 
-        // Load Customer Orders in Popup Modal
+        // Load Customer Orders with Delete Option
         window.loadAdminOrdersModal = async function() {
             document.getElementById('adminOrdersModal').classList.remove('hidden');
             const container = document.getElementById('admin-orders-list');
@@ -126,10 +125,13 @@
                     const ord = docSnap.data();
                     const docId = docSnap.id;
                     html += `
-                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs space-y-2 shadow-sm">
-                            <div class="flex justify-between font-bold text-gray-900 border-b pb-1">
+                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs space-y-2 shadow-sm relative">
+                            <div class="flex justify-between items-center font-bold text-gray-900 border-b pb-1">
                                 <span>🆔 ${ord.orderId}</span>
-                                <span class="text-rose-600">₹${ord.total}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-rose-600">₹${ord.total}</span>
+                                    <button onclick="deleteOrder('${docId}')" class="bg-red-100 hover:bg-red-200 text-red-700 px-2 py-0.5 rounded text-[9px] font-bold">🗑️ డిలీట్</button>
+                                </div>
                             </div>
                             <p class="text-[10px] text-gray-700"><b>పేరు:</b> ${ord.name} | <b>ఫోన్:</b> ${ord.phone}</p>
                             <p class="text-[10px] text-gray-700"><b>అడ్రస్:</b> ${ord.address} - ${ord.pincode}</p>
@@ -155,6 +157,18 @@
                 container.innerHTML = html;
             } catch(e) {
                 container.innerHTML = `<p class="text-red-500 text-center text-xs">లోపం: ${e.message}</p>`;
+            }
+        };
+
+        window.deleteOrder = async function(docId) {
+            if(confirm("ఈ ఆర్డర్‌ని పూర్తిగా డిలీట్ చేయాలనుకుంటున్నారా?")) {
+                try {
+                    await deleteDoc(doc(db, "orders", docId));
+                    alert("ఆర్డర్ విజయవంతంగా డిలీట్ చేయబడింది!");
+                    loadAdminOrdersModal();
+                } catch(e) {
+                    alert("డిలీట్ అవ్వలేదు: " + e.message);
+                }
             }
         };
 
@@ -199,7 +213,7 @@
     <!-- Main Container -->
     <main class="container mx-auto p-3 max-w-xl space-y-4">
         
-        <!-- Add Product Section with Gallery File Chooser -->
+        <!-- Add Product Section -->
         <section class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
             <h2 class="text-xs font-bold text-gray-800 mb-3 uppercase tracking-wider border-b pb-1">➕ కొత్త ప్రొడక్ట్ జోడించండి</h2>
             <form id="productForm" onsubmit="addProduct(event)" class="space-y-2.5">

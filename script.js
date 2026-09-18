@@ -271,7 +271,7 @@ window.fetchCustomerOrders = async function() {
     }
 }
 
-window.finishOrderWhatsApp = async function() {
+window.finishOrderWhatsApp = function() {
     const utrNumber = document.getElementById('utrNumber').value.trim();
     if(!utrNumber || utrNumber.length < 6) {
         alert("దయచేసి పేమెంట్ పూర్తి చేసిన తర్వాత మీ 12 అంకెల UTR / Transaction ID ని ఎంటర్ చేయండి!");
@@ -286,35 +286,34 @@ window.finishOrderWhatsApp = async function() {
     let total = 0;
     cart.forEach(i => { total += i.price * i.qty; });
 
-    try {
-        await setDoc(doc(db, "orders", currentOrderId), {
-            orderId: currentOrderId,
-            name: name,
-            phone: phone,
-            address: address,
-            pincode: pincode,
-            items: cart,
-            total: total,
-            utrNumber: utrNumber,
-            waybill: "",
-            shippingDate: "",
-            timestamp: new Date().toISOString()
-        });
+    // Background sync to Firebase (Won't block WhatsApp opening)
+    setDoc(doc(db, "orders", currentOrderId), {
+        orderId: currentOrderId,
+        name: name,
+        phone: phone,
+        address: address,
+        pincode: pincode,
+        items: cart,
+        total: total,
+        utrNumber: utrNumber,
+        waybill: "",
+        shippingDate: "",
+        timestamp: new Date().toISOString()
+    }).catch(err => console.error("Order save error: ", err));
 
-        for (const item of cart) {
-            const productData = fetchedProducts[item.id];
+    cart.forEach(item => {
+        const productData = fetchedProducts[item.id];
+        if(productData) {
             const currentStock = Number(productData.stock) || 0;
             const updatedStock = Math.max(0, currentStock - item.qty);
             const newStatus = updatedStock === 0 ? "Out of Stock" : (productData.status || "In Stock");
 
-            await updateDoc(doc(db, "items", item.id), {
+            updateDoc(doc(db, "items", item.id), {
                 stock: updatedStock,
                 status: newStatus
-            });
+            }).catch(err => console.error("Stock update error: ", err));
         }
-    } catch (err) {
-        console.error("Order save error: ", err);
-    }
+    });
 
     let orderSummary = `🚀 *New Paid Order with UTR Proof (Venkat Textiles)*\n`;
     orderSummary += `🆔 Order ID: *${currentOrderId}*\n`;
@@ -335,6 +334,7 @@ window.finishOrderWhatsApp = async function() {
     const myNumber = "919441447923";
     window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(orderSummary)}`, '_blank');
 }
+
 
 function showToast(msg) {
     const t = document.getElementById('toast');

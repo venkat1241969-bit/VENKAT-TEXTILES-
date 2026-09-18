@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, setDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBPOp8NtMBP09rNtCGe5-wRre6Y_Zt5g0M",
@@ -46,7 +46,8 @@ window.loadProducts = async function() {
                     <div class="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded z-10 shadow">
                         ${discountVal}% off
                     </div>
-                    <img loading="lazy" class="h-36 w-full object-cover bg-gray-100 ${isOut ? 'grayscale opacity-60' : ''}" src="${p.image}" alt="${p.name}">
+                    <!-- Image click for Zoom -->
+                    <img loading="lazy" class="h-36 w-full object-cover bg-gray-100 cursor-pointer ${isOut ? 'grayscale opacity-60' : ''}" src="${p.image}" alt="${p.name}" onclick="openImageZoom('${p.image}', '${p.name}')">
                     
                     <div class="p-2.5 flex flex-col flex-grow">
                         <h3 class="font-bold text-gray-900 text-xs mb-0.5 truncate">${p.name}</h3>
@@ -78,6 +79,17 @@ window.loadProducts = async function() {
     } catch (e) {
         grid.innerHTML = `<p class="text-red-500 col-span-full text-center text-sm">డేటా లోడ్ అవ్వలేదు: ${e.message}</p>`;
     }
+}
+
+// Image Zoom Functions
+window.openImageZoom = function(imgSrc, title) {
+    document.getElementById('zoomedImg').src = imgSrc;
+    document.getElementById('zoomedTitle').innerText = title;
+    document.getElementById('imageZoomModal').classList.remove('hidden');
+}
+
+window.closeImageZoom = function() {
+    document.getElementById('imageZoomModal').classList.add('hidden');
 }
 
 window.addToCart = function(id) {
@@ -139,7 +151,7 @@ function updateCartUI() {
         subtotal += i.price * i.qty;
         html += `
             <div class="flex items-center justify-between gap-2 bg-gray-50 p-2 rounded-xl border border-gray-100">
-                <img src="${i.image}" class="w-9 h-9 object-cover rounded-lg">
+                <img src="${i.image}" class="w-9 h-9 object-cover rounded-lg cursor-pointer" onclick="openImageZoom('${i.image}', '${i.name}')">
                 <div class="flex-grow">
                     <h4 class="font-bold text-gray-800 text-xs truncate max-w-[110px]">${i.name}</h4>
                     <p class="text-rose-600 font-black text-xs">₹${i.price * i.qty}</p>
@@ -211,7 +223,6 @@ window.closeMyOrdersModal = function() {
     document.getElementById('myOrdersModal').classList.add('hidden');
 }
 
-// Fetch Customer Orders from Firestore
 window.fetchCustomerOrders = async function() {
     const phone = document.getElementById('searchPhone').value.trim();
     const container = document.getElementById('ordersListContainer');
@@ -273,7 +284,6 @@ window.finishOrderWhatsApp = async function() {
     let total = 0;
     cart.forEach(i => { total += i.price * i.qty; });
 
-    // Save Order to Firestore so it appears in "My Orders" and Admin can update Waybill/Date
     try {
         await setDoc(doc(db, "orders", currentOrderId), {
             orderId: currentOrderId,
@@ -289,7 +299,6 @@ window.finishOrderWhatsApp = async function() {
             timestamp: new Date().toISOString()
         });
 
-        // Reduce Stock in Firebase
         for (const item of cart) {
             const productData = fetchedProducts[item.id];
             const currentStock = Number(productData.stock) || 0;
@@ -302,7 +311,7 @@ window.finishOrderWhatsApp = async function() {
             });
         }
     } catch (err) {
-        console.error("Order save/stock error: ", err);
+        console.error("Order save error: ", err);
     }
 
     let orderSummary = `🚀 *New Paid Order with UTR Proof (Venkat Textiles)*\n`;
@@ -319,7 +328,7 @@ window.finishOrderWhatsApp = async function() {
     });
 
     orderSummary += `\n💰 మొత్తం బిల్లు (Total): *₹${total}*`;
-    orderSummary += `\n✅ పేమెంట్ వెరిఫై చేయబడింది (Merchant UPI: 8121911438@okbizaxis).`;
+    order_summary += `\n✅ పేమెంట్ వెరిఫై చేయబడింది (Merchant UPI: 8121911438@okbizaxis).`;
 
     const myNumber = "919441447923";
     window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(orderSummary)}`, '_blank');
@@ -335,4 +344,4 @@ function showToast(msg) {
 }
 
 window.onload = loadProducts;
-        
+    

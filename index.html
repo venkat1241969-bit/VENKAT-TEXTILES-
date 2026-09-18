@@ -42,15 +42,6 @@
         <p class="text-[10px] font-bold text-rose-700">📌 T&C: రిటర్న్ లేదు. ఎక్స్చేంజ్ చేయబడును (Rs. 80/- ఛార్జ్ చేయబడుతుంది).</p>
     </footer>
 
-    <!-- Image Zoom Modal -->
-    <div id="imageZoomModal" class="fixed inset-0 bg-black bg-opacity-80 hidden z-50 flex items-center justify-center p-3" onclick="closeImageZoom()">
-        <div class="relative max-w-sm w-full bg-white p-2 rounded-2xl shadow-2xl text-center" onclick="event.stopPropagation()">
-            <button onclick="closeImageZoom()" class="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold w-7 h-7 rounded-full flex items-center justify-center text-xs">✕</button>
-            <img id="zoomedImg" src="" alt="Zoomed Product" class="w-full h-80 object-contain rounded-xl bg-gray-50 mb-2">
-            <p id="zoomedTitle" class="text-xs font-bold text-gray-800 truncate"></p>
-        </div>
-    </div>
-
     <!-- Cart Modal Drawer -->
     <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex justify-end">
         <div class="bg-white w-full max-w-xs h-full flex flex-col p-4 shadow-2xl relative">
@@ -67,7 +58,7 @@
                     <span id="cart-total" class="text-lg font-black text-rose-600">₹0</span>
                 </div>
                 <button onclick="openCheckoutModal()" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-2.5 rounded-xl font-bold text-xs shadow-lg transition">
-                    Proceed to Checkout
+                    Proceed to Shiprocket Checkout
                 </button>
             </div>
         </div>
@@ -77,7 +68,7 @@
     <div id="checkoutModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-3">
         <div class="bg-white w-full max-w-sm rounded-2xl p-4 shadow-2xl relative">
             <div class="flex justify-between items-center mb-1">
-                <h3 class="text-sm font-bold text-gray-900">📦 డెలివెరీ అడ్రస్</h3>
+                <h3 class="text-sm font-bold text-gray-900">📦 Shiprocket డెలివెరీ అడ్రస్</h3>
             </div>
             <p class="text-[10px] text-emerald-600 font-bold mb-2">ఆర్డర్ ఐడీ: <span id="displayOrderId" class="bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">VT-XXXXX</span></p>
             
@@ -86,16 +77,19 @@
                     <label class="text-[10px] font-semibold text-gray-600 block">పూర్తి పేరు:</label>
                     <input type="text" id="custName" placeholder="ఉదా: వెంకట్" class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
                 </div>
+
                 <div>
                     <label class="text-[10px] font-semibold text-gray-600 block">ఫోన్ నంబర్:</label>
                     <input type="tel" id="custPhone" maxlength="10" placeholder="9441447923" class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
                 </div>
+
                 <div>
-                    <label class="text-[10px] font-semibold text-gray-600 block">పూర్తి అడ్రస్:</label>
+                    <label class="text-[10px] font-semibold text-gray-600 block">పూర్తి అడ్రస్ (House No, Street, City):</label>
                     <textarea id="custAddress" rows="2" placeholder="ఇంటి నంబర్, వీధి, ఊరు" class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-gray-50"></textarea>
                 </div>
+
                 <div>
-                    <label class="text-[10px] font-semibold text-gray-600 block">పిన్‌కోడ్ (6 digits):</label>
+                    <label class="text-[10px] font-semibold text-gray-600 block">పిన్‌కోడ్ (Pincode - 6 digits):</label>
                     <input type="tel" id="custPincode" maxlength="6" placeholder="500001" class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
                 </div>
             </div>
@@ -103,11 +97,14 @@
             <button onclick="proceedToPaymentQR()" class="w-full bg-rose-600 hover:bg-rose-700 text-white text-xs py-2.5 rounded-xl font-bold shadow mt-3 transition">
                 📷 QR కోడ్ స్కాన్ చేసి పే చేయి (Next)
             </button>
-            <button onclick="closeCheckoutModal()" class="w-full text-gray-500 text-[10px] py-1 font-semibold mt-1">మూసివేయి</button>
+
+            <button onclick="closeCheckoutModal()" class="w-full text-gray-500 text-[10px] py-1 font-semibold mt-1">
+                మూసివేయి (Cancel)
+            </button>
         </div>
     </div>
 
-    <!-- QR Code Scan & Pay Modal -->
+    <!-- QR Code Scan & Pay Modal (Increased Size) -->
     <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-3">
         <div class="bg-white w-full max-w-sm rounded-2xl p-4 text-center shadow-2xl relative">
             <h3 class="text-sm font-bold text-gray-900 mb-0.5">Scan & Pay via QR Code</h3>
@@ -119,10 +116,12 @@
                     <span class="text-[10px] text-gray-500 font-semibold">చెల్లించవలసిన మొత్తం:</span>
                     <span id="qrAmountText" class="text-sm font-black text-rose-600">₹0</span>
                 </div>
+                
                 <div class="bg-white p-2 border inline-block rounded-lg shadow-sm">
                     <img id="dynamicQrImage" src="" alt="Merchant QR Code" class="w-32 h-32 mx-auto object-contain">
                 </div>
                 <p class="text-[9px] text-gray-500 mt-1">ఫోన్‌పే/గూగుల్ పే తో క్యూఆర్ స్కాన్ చేసి పే చేయండి.</p>
+
                 <div class="mt-2 text-left">
                     <label class="text-[10px] font-bold text-gray-700 block mb-1">పేమెంట్ UTR / Transaction ID:</label>
                     <input type="text" id="utrNumber" placeholder="ఉదా: 4235xxxxxxxx" class="w-full border px-2 py-1.5 text-xs rounded-lg outline-none bg-white">
@@ -132,7 +131,10 @@
             <button onclick="finishOrderWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 rounded-xl font-bold shadow mb-2 flex items-center justify-center gap-1">
                 ✅ ఆర్డర్ కన్ఫర్మ్ చేసి వాట్సాప్‌కి పంపు
             </button>
-            <button onclick="closeQRModal()" class="w-full text-gray-400 text-[10px] py-1 font-semibold">క్యాన్సల్</button>
+
+            <button onclick="closeQRModal()" class="w-full text-gray-400 text-[10px] py-1 font-semibold">
+                క్యాన్సల్
+            </button>
         </div>
     </div>
 

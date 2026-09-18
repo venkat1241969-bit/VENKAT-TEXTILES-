@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Venkat Textiles - Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -22,7 +21,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Add Product Form Handler
         window.addProduct = async function(event) {
             event.preventDefault();
             const name = document.getElementById('prodName').value;
@@ -58,7 +56,6 @@
             }
         };
 
-        // Load Products in Admin Panel
         window.loadAdminProducts = async function() {
             const list = document.getElementById('admin-products-list');
             try {
@@ -79,7 +76,7 @@
                             <img src="${p.image}" class="w-12 h-12 object-cover rounded-lg">
                             <div class="flex-grow">
                                 <h4 class="font-bold text-xs text-gray-900 truncate max-w-[120px]">${p.name}</h4>
-                                <p class="text-[10px] text-rose-600 font-black">₹${p.price} | Stock: ${p.stock}</p>
+                                <p class="text-[10px] text-rose-600 font-black">₹${p.price} \vert{} Stock:${p.stock}</p>
                             </div>
                             <button onclick="deleteProduct('${id}')" class="bg-red-50 text-red-600 border border-red-200 px-2 py-1 rounded-lg text-[10px] font-bold">డిలీట్</button>
                         </div>
@@ -98,8 +95,8 @@
             }
         };
 
-        // Load Customer Orders for Admin Management & Waybill Update
-        window.loadAdminOrders = async function() {
+        window.loadAdminOrdersModal = async function() {
+            document.getElementById('adminOrdersModal').classList.remove('hidden');
             const container = document.getElementById('admin-orders-list');
             container.innerHTML = `<p class="text-gray-500 text-center text-xs py-4">ఆర్డర్లు లోడ్ అవుతున్నాయి...</p>`;
 
@@ -108,7 +105,7 @@
                 const querySnapshot = await getDocs(q);
 
                 if(querySnapshot.empty) {
-                    container.innerHTML = `<p class="text-gray-400 text-center text-xs py-6">ఆర్డర్లు ఏవీ లేవు.</p>`;
+                    container.innerHTML = `<p class="text-gray-400 text-center text-xs py-6">ఆర్డర్లు ఏవీ లేవు.</p>";
                     return;
                 }
 
@@ -117,7 +114,7 @@
                     const ord = docSnap.data();
                     const docId = docSnap.id;
                     html += `
-                        <div class="bg-white border border-gray-200 rounded-xl p-3 text-xs space-y-2 shadow-sm">
+                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs space-y-2 shadow-sm">
                             <div class="flex justify-between font-bold text-gray-900 border-b pb-1">
                                 <span>🆔 ${ord.orderId}</span>
                                 <span class="text-rose-600">₹${ord.total}</span>
@@ -126,11 +123,11 @@
                             <p class="text-[10px] text-gray-700"><b>అడ్రస్:</b> ${ord.address} - ${ord.pincode}</p>
                             <p class="text-[10px] text-gray-700"><b>UTR ID:</b> ${ord.utrNumber}</p>
                             
-                            <div class="bg-gray-50 p-2 rounded-lg border border-gray-200 space-y-1.5">
-                                <p class="text-[10px] font-bold text-gray-800">🚚 షిప్పింగ్ & వేబిల్లు అప్‌డేట్:</p>
+                            <div class="bg-white p-2 rounded-lg border border-gray-200 space-y-1.5">
+                                <p class="text-[10px] font-bold text-gray-800">🚚 వేబిల్లు & డేట్ అప్‌డేట్:</p>
                                 <div>
                                     <label class="text-[9px] text-gray-500 block">Waybill / Tracking No:</label>
-                                    <input type="text" id="waybill_${docId}" value="${ord.waybill || ''}" placeholder="వేబిల్లు నంబర్ రాయండి" class="w-full border px-2 py-1 text-xs rounded bg-white">
+                                    <input type="text" id="waybill_${docId}" value="${ord.waybill || ''}" placeholder="వేబిల్లు నంబర్" class="w-full border px-2 py-1 text-xs rounded bg-white">
                                 </div>
                                 <div>
                                     <label class="text-[9px] text-gray-500 block">Shipping Date:</label>
@@ -149,6 +146,10 @@
             }
         };
 
+        window.closeAdminOrdersModal = function() {
+            document.getElementById('adminOrdersModal').classList.add('hidden');
+        };
+
         window.saveOrderTracking = async function(docId) {
             const waybill = document.getElementById(`waybill_${docId}`).value.trim();
             const shippingDate = document.getElementById(`date_${docId}`).value.trim();
@@ -158,8 +159,8 @@
                     waybill: waybill,
                     shippingDate: shippingDate
                 });
-                alert("వేబిల్లు మరియు తేదీ విజయవంతంగా సేవ్ చేయబడ్డాయి!");
-                loadAdminOrders();
+                alert("విజయవంతంగా సేవ్ చేయబడింది!");
+                loadAdminOrdersModal();
             } catch(e) {
                 alert("సేవ్ అవ్వలేదు: " + e.message);
             }
@@ -167,7 +168,6 @@
 
         window.onload = function() {
             loadAdminProducts();
-            loadAdminOrders();
         };
     </script>
 </head>
@@ -175,8 +175,13 @@
 
     <!-- Header -->
     <header class="bg-gray-900 text-white p-3 sticky top-0 z-40 shadow flex justify-between items-center">
-        <h1 class="text-sm font-black tracking-wide">VENKAT TEXTILES - ADMIN PANEL</h1>
-        <a href="index.html" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold">స్టోర్ కి వెళ్ళు (Store)</a>
+        <h1 class="text-sm font-black tracking-wide">ADMIN PANEL</h1>
+        <div class="flex gap-2">
+            <button onclick="loadAdminOrdersModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow">
+                📦 కస్టమర్ ఆర్డర్లు
+            </button>
+            <a href="index.html" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold">స్టోర్</a>
+        </div>
     </header>
 
     <!-- Main Container -->
@@ -201,7 +206,7 @@
                     </div>
                     <div>
                         <label class="text-[10px] font-semibold text-gray-600 block">స్టాక్ (Qty):</label>
-                        <input type="number" id="prodStock" required placeholder="10" class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
+                        <input type="number" id="prodStock" required placeholder="10" class="w-full border px-2 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
                     </div>
                 </div>
                 <div>
@@ -218,17 +223,6 @@
             </form>
         </section>
 
-        <!-- Customer Orders Management Section -->
-        <section class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-            <h2 class="text-xs font-bold text-gray-800 mb-3 uppercase tracking-wider border-b pb-1 flex justify-between items-center">
-                <span>📦 కస్టమర్ ఆర్డర్లు & వేబిల్లు అప్‌డేట్</span>
-                <button onclick="loadAdminOrders()" class="text-[10px] text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">రిఫ్రెష్</button>
-            </h2>
-            <div id="admin-orders-list" class="space-y-3">
-                <p class="text-gray-400 text-center text-xs py-4">ఆర్డర్లు లోడ్ అవుతున్నాయి...</p>
-            </div>
-        </section>
-
         <!-- Manage Existing Products -->
         <section class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
             <h2 class="text-xs font-bold text-gray-800 mb-3 uppercase tracking-wider border-b pb-1">📋 ప్రొడక్ట్స్ జాబితా & స్టాక్ మేనేజ్‌మెంట్</h2>
@@ -236,6 +230,19 @@
         </section>
 
     </main>
+
+    <!-- Admin Orders Popup Modal -->
+    <div id="adminOrdersModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-3">
+        <div class="bg-white w-full max-w-md rounded-2xl p-4 shadow-2xl relative max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-2 mb-3">
+                <h3 class="text-sm font-black text-gray-900">📦 కస్టమర్ ఆర్డర్లు & వేబిల్లు అప్‌డేట్</h3>
+                <button onclick="closeAdminOrdersModal()" class="text-gray-500 font-bold text-base">✕</button>
+            </div>
+            <div id="admin-orders-list" class="flex-grow overflow-y-auto space-y-3 pr-1">
+                <p class="text-gray-400 text-center text-xs py-6">ఆర్డర్లు లోడ్ అవుతున్నాయి...</p>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

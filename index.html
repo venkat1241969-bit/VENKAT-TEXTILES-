@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Venkat Textiles - Online Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDKs -->
     <script type="module" src="script.js"></script>
 </head>
 <body class="bg-gray-100 pb-24">
@@ -17,8 +16,11 @@
             <p class="text-[9px] text-rose-100">GSTN: 37ADGPY4978G1ZR</p>
             <p class="text-[9px] text-rose-100 mt-0.5">Macherla, Palnadu, Andhra Pradesh - 522426</p>
         </div>
-        <div class="flex items-center gap-2.5">
-            <div class="bg-white p-1.5 rounded-full shadow-md flex items-center justify-center w-9 h-9 border border-rose-200" title="Venkateswara Logo">
+        <div class="flex items-center gap-2">
+            <button onclick="openMyOrdersModal()" class="bg-rose-700 hover:bg-rose-800 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-xl shadow flex items-center gap-1">
+                📦 My Orders
+            </button>
+            <div class="bg-white p-1 rounded-full shadow-md flex items-center justify-center w-8 h-8 border border-rose-200">
                 <span class="text-rose-700 font-bold text-xs">🛕</span>
             </div>
             <button onclick="toggleCart()" class="relative bg-rose-700 p-2 rounded-xl text-white flex items-center gap-1 shadow">
@@ -64,7 +66,7 @@
 
     <!-- Shiprocket Customer Details & Address Modal -->
     <div id="checkoutModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-3">
-        <div class="bg-white w-full max-w-xs rounded-2xl p-4 shadow-2xl relative">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-4 shadow-2xl relative">
             <div class="flex justify-between items-center mb-1">
                 <h3 class="text-sm font-bold text-gray-900">📦 Shiprocket డెలివెరీ అడ్రస్</h3>
             </div>
@@ -102,37 +104,59 @@
         </div>
     </div>
 
-    <!-- QR Code Scan & Pay Modal -->
-    <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-2">
-        <div class="bg-white w-full max-w-[260px] rounded-2xl p-2.5 text-center shadow-2xl relative">
-            <h3 class="text-[11px] font-bold text-gray-900 mb-0">Scan & Pay via QR Code</h3>
-            <p class="text-[9px] font-bold text-rose-600 mb-0">Venkat Textiles</p>
-            <p class="text-[8px] text-gray-500 mb-1">UPI ID: 8121911438@okbizaxis</p>
+    <!-- QR Code Scan & Pay Modal (Increased Size) -->
+    <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-3">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-4 text-center shadow-2xl relative">
+            <h3 class="text-sm font-bold text-gray-900 mb-0.5">Scan & Pay via QR Code</h3>
+            <p class="text-[11px] font-bold text-rose-600 mb-0.5">Venkat Textiles</p>
+            <p class="text-[10px] text-gray-500 mb-2">UPI ID: 8121911438@okbizaxis</p>
             
-            <div class="bg-gray-50 p-2 rounded-xl border border-gray-200 mb-2">
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mb-3">
                 <div class="flex justify-between items-center px-1 mb-1">
-                    <span class="text-[9px] text-gray-500 font-semibold">మొత్తం:</span>
-                    <span id="qrAmountText" class="text-xs font-black text-rose-600">₹0</span>
+                    <span class="text-[10px] text-gray-500 font-semibold">చెల్లించవలసిన మొత్తం:</span>
+                    <span id="qrAmountText" class="text-sm font-black text-rose-600">₹0</span>
                 </div>
                 
-                <div class="bg-white p-1 border inline-block rounded-lg shadow-sm">
-                    <img id="dynamicQrImage" src="" alt="Merchant QR Code" class="w-20 h-20 mx-auto object-contain">
+                <div class="bg-white p-2 border inline-block rounded-lg shadow-sm">
+                    <img id="dynamicQrImage" src="" alt="Merchant QR Code" class="w-32 h-32 mx-auto object-contain">
                 </div>
-                <p class="text-[7px] text-gray-500 mt-0.5">క్యూఆర్ స్కాన్ చేసి పే చేయండి.</p>
+                <p class="text-[9px] text-gray-500 mt-1">ఫోన్‌పే/గూగుల్ పే తో క్యూఆర్ స్కాన్ చేసి పే చేయండి.</p>
 
-                <div class="mt-1 text-left">
-                    <label class="text-[8px] font-bold text-gray-700 block mb-0.5">పేమెంట్ UTR / Transaction ID:</label>
-                    <input type="text" id="utrNumber" placeholder="ఉదా: 4235xxxxxxxx" class="w-full border px-1.5 py-1 text-[10px] rounded-lg outline-none bg-white">
+                <div class="mt-2 text-left">
+                    <label class="text-[10px] font-bold text-gray-700 block mb-1">పేమెంట్ UTR / Transaction ID:</label>
+                    <input type="text" id="utrNumber" placeholder="ఉదా: 4235xxxxxxxx" class="w-full border px-2 py-1.5 text-xs rounded-lg outline-none bg-white">
                 </div>
             </div>
 
-            <button onclick="finishOrderWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] py-2 rounded-xl font-bold shadow mb-1 flex items-center justify-center gap-1">
+            <button onclick="finishOrderWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 rounded-xl font-bold shadow mb-2 flex items-center justify-center gap-1">
                 ✅ ఆర్డర్ కన్ఫర్మ్ చేసి వాట్సాప్‌కి పంపు
             </button>
 
-            <button onclick="closeQRModal()" class="w-full text-gray-400 text-[9px] py-0.5 font-semibold">
+            <button onclick="closeQRModal()" class="w-full text-gray-400 text-[10px] py-1 font-semibold">
                 క్యాన్సల్
             </button>
+        </div>
+    </div>
+
+    <!-- My Orders Modal -->
+    <div id="myOrdersModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-3">
+        <div class="bg-white w-full max-w-md rounded-2xl p-4 shadow-2xl relative max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-2 mb-3">
+                <h3 class="text-sm font-black text-gray-900">📦 నా ఆర్డర్లు (My Orders)</h3>
+                <button onclick="closeMyOrdersModal()" class="text-gray-500 font-bold text-base">✕</button>
+            </div>
+            
+            <div class="mb-3">
+                <label class="text-[10px] font-semibold text-gray-600 block mb-1">మీ ఫోన్ నంబర్ ఎంటర్ చేయండి:</label>
+                <div class="flex gap-2">
+                    <input type="tel" id="searchPhone" maxlength="10" placeholder="10 అంకెల ఫోన్ నంబర్" class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
+                    <button onclick="fetchCustomerOrders()" class="bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow">వెతుకు</button>
+                </div>
+            </div>
+
+            <div id="ordersListContainer" class="flex-grow overflow-y-auto space-y-3 pr-1">
+                <p class="text-gray-400 text-center text-xs py-6">మీ ఫోన్ నంబర్ ఎంటర్ చేసి మీ ఆర్డర్లు చూడండి.</p>
+            </div>
         </div>
     </div>
 

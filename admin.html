@@ -3,90 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Venkat Textiles - Admin Dashboard</title>
+    <title>Venkat Textiles - Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 pb-20">
-
-    <header class="bg-rose-700 text-white p-4 shadow-md sticky top-0 z-50 flex justify-between items-center">
-        <h1 class="text-sm font-black tracking-wide">Venkat Textiles - Admin Panel</h1>
-        <a href="index.html" class="bg-white text-rose-700 text-xs px-3 py-1.5 rounded-lg font-bold shadow">🛍️ Shop View</a>
-    </header>
-
-    <main class="container mx-auto p-4 max-w-lg">
-        <!-- Add / Edit Product Form Card -->
-        <div class="bg-white rounded-2xl shadow-md p-5 border border-gray-200 mb-6">
-            <h2 id="formTitle" class="text-base font-bold text-gray-800 mb-4 border-b pb-2">➕ కొత్త ప్రొడక్ట్ జోడించండి</h2>
-            
-            <input type="hidden" id="editDocId" value="">
-
-            <div class="space-y-3">
-                <div>
-                    <label class="text-xs font-semibold text-gray-600 mb-1 block">ప్రొడక్ట్ పేరు (Name):</label>
-                    <input type="text" id="pName" placeholder="ఉదా: Wholesale Saree" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs font-semibold text-gray-600 mb-1 block">ధర (Price ₹):</label>
-                        <input type="number" id="pPrice" placeholder="1316" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
-                    </div>
-                    <div>
-                        <label class="text-xs font-semibold text-gray-600 mb-1 block">డిస్కౌంట్ శాతం (%):</label>
-                        <input type="number" id="pDiscount" value="30" placeholder="30" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs font-semibold text-gray-600 mb-1 block">స్టాక్ క్వాంటిటీ (Qty):</label>
-                        <input type="number" id="pStock" value="10" placeholder="10" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
-                    </div>
-                    <div>
-                        <label class="text-xs font-semibold text-gray-600 mb-1 block">కేటగిరీ (Category - Manual):</label>
-                        <input type="text" id="pCategory" placeholder="ఉదా: Sarees" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="text-xs font-semibold text-gray-600 mb-1 block">స్టాక్ స్థితి (Status):</label>
-                    <select id="pStatus" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50">
-                        <option value="In Stock">In Stock (అందుబాటులో ఉంది)</option>
-                        <option value="Out of Stock">Out of Stock (అయిపోయింది)</option>
-                    </select>
-                </div>
-
-                <!-- Gallery Photo Upload Option -->
-                <div>
-                    <label class="text-xs font-semibold text-gray-600 mb-1 block">గ్యాలరీ నుండి ఫోటో సెలెక్ట్ చేయండి:</label>
-                    <input type="file" id="pImageFile" accept="image/*" class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100">
-                    <p class="text-[10px] text-gray-400 mt-1">ఎడిట్ చేసేటప్పుడు ఫోటో మార్చకపోతే పాతదే ఉంటుంది.</p>
-                </div>
-
-                <div>
-                    <label class="text-xs font-semibold text-gray-600 mb-1 block">వివరణ (Description):</label>
-                    <textarea id="pDesc" rows="2" placeholder="Pure Wholesale Quality..." class="w-full border px-3 py-2 text-xs rounded-xl outline-none bg-gray-50"></textarea>
-                </div>
-
-                <button onclick="saveProduct()" id="saveBtn" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition">
-                    🚀 ప్రొడక్ట్ పబ్లిష్ చేయండి (Publish)
-                </button>
-                <button onclick="resetForm()" id="cancelBtn" class="w-full bg-gray-300 text-gray-700 py-2 rounded-xl font-bold text-xs hidden transition">
-                    క్యాన్సల్ (Cancel Edit)
-                </button>
-            </div>
-        </div>
-
-        <h3 class="text-sm font-bold text-gray-800 mb-3">📦 లైవ్ ప్రొడక్ట్స్ మేనేజ్‌మెంట్</h3>
-        <div id="admin-products-list" class="space-y-3">
-            <p class="text-center text-xs text-gray-500 py-4">ప్రొడక్ట్స్ లోడ్ అవుతున్నాయి...</p>
-        </div>
-    </main>
-
-    <!-- Firebase Script -->
+    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBPOp8NtMBP09rNtCGe5-wRre6Y_Zt5g0M",
@@ -99,189 +21,221 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        let allProductsCache = {};
 
-        window.saveProduct = async function() {
-            const editId = document.getElementById('editDocId').value;
-            const name = document.getElementById('pName').value;
-            const price = document.getElementById('pPrice').value;
-            const discount = document.getElementById('pDiscount').value || "30";
-            const stock = document.getElementById('pStock').value;
-            const category = document.getElementById('pCategory').value || "General";
-            const status = document.getElementById('pStatus').value;
-            const fileInput = document.getElementById('pImageFile');
-            const description = document.getElementById('pDesc').value;
-
-            if(!name || !price) {
-                alert("దయచేసి ప్రొడక్ట్ పేరు మరియు ధర పూర్తిగా నింపండి!");
-                return;
-            }
+        // Add Product Form Handler
+        window.addProduct = async function(event) {
+            event.preventDefault();
+            const name = document.getElementById('prodName').value;
+            const price = document.getElementById('prodPrice').value;
+            const discount = document.getElementById('prodDiscount').value;
+            const stock = document.getElementById('prodStock').value;
+            const image = document.getElementById('prodImage').value;
+            const desc = document.getElementById('prodDesc').value;
 
             const btn = document.getElementById('saveBtn');
             btn.innerText = "సేవ్ అవుతోంది...";
             btn.disabled = true;
 
             try {
-                if (editId) {
-                    const updateData = {
-                        name,
-                        price: Number(price),
-                        discount: Number(discount),
-                        stock: Number(stock),
-                        category,
-                        status,
-                        description
-                    };
-
-                    if (fileInput.files.length > 0) {
-                        const file = fileInput.files[0];
-                        const base64Image = await toBase64(file);
-                        updateData.image = base64Image;
-                    }
-
-                    await updateDoc(doc(db, "items", editId), updateData);
-                    alert("ప్రొడక్ట్ విజయవంతంగా అప్‌డేట్ చేయబడింది!");
-                    resetForm();
-                } else {
-                    if (fileInput.files.length === 0) {
-                        alert("దయచేసి గ్యాలరీ నుండి ఫోటోని సెలెక్ట్ చేయండి!");
-                        btn.innerText = "🚀 ప్రొడక్ట్ పబ్లిష్ చేయండి (Publish)";
-                        btn.disabled = false;
-                        return;
-                    }
-                    const file = fileInput.files[0];
-                    const base64Image = await toBase64(file);
-
-                    await addDoc(collection(db, "items"), {
-                        name,
-                        price: Number(price),
-                        discount: Number(discount),
-                        stock: Number(stock),
-                        category,
-                        status,
-                        image: base64Image,
-                        description,
-                        timestamp: Date.now()
-                    });
-
-                    alert("ప్రొడక్ట్ విజయవంతంగా పబ్లిష్ చేయబడింది!");
-                    resetForm();
-                }
+                await addDoc(collection(db, "items"), {
+                    name,
+                    price: Number(price),
+                    discount: Number(discount) || 30,
+                    stock: Number(stock) || 1,
+                    image,
+                    description: desc,
+                    status: Number(stock) > 0 ? "In Stock" : "Out of Stock",
+                    timestamp: new Date().toISOString()
+                });
+                alert("ప్రొడక్ట్ విజయవంతంగా జోడించబడింది!");
+                document.getElementById('productForm').reset();
                 loadAdminProducts();
-            } catch (error) {
-                alert("ఎర్రర్ వచ్చింది: " + error.message);
+            } catch (e) {
+                alert("ఎర్రర్: " + e.message);
             } finally {
-                btn.innerText = "🚀 ప్రొడక్ట్ పబ్లిష్ చేయండి (Publish)";
+                btn.innerText = "ప్రొడక్ట్ సేవ్ చేయి";
                 btn.disabled = false;
             }
-        }
+        };
 
-        function toBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            });
-        }
-
-        async function loadAdminProducts() {
-            const listEl = document.getElementById('admin-products-list');
+        // Load Products in Admin Panel
+        window.loadAdminProducts = async function() {
+            const list = document.getElementById('admin-products-list');
             try {
                 const q = query(collection(db, "items"), orderBy("timestamp", "desc"));
                 const querySnapshot = await getDocs(q);
-                let html = '';
+                let content = '';
 
                 if (querySnapshot.empty) {
-                    listEl.innerHTML = `<p class="text-center text-xs text-gray-500 py-4">ప్రొడక్ట్స్ ఏవీ లేవు.</p>`;
+                    list.innerHTML = `<p class="text-gray-500 text-center py-6 text-xs">ప్రొడక్ట్స్ ఏవీ లేవు.</p>`;
                     return;
                 }
 
-                querySnapshot.forEach((docItem) => {
-                    const p = docItem.data();
-                    const id = docItem.id;
-                    allProductsCache[id] = p;
-                    const stockQty = Number(p.stock) || 0;
-                    const disc = p.discount || 30;
-                    const cat = p.category || 'General';
-                    const isOut = (p.status === "Out of Stock" || stockQty <= 0);
-
-                    html += `
-                        <div class="bg-white rounded-xl p-3 border border-gray-200 flex items-center justify-between shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <img src="${p.image}" class="w-12 h-12 object-cover rounded-lg bg-gray-100">
-                                <div>
-                                    <h4 class="font-bold text-gray-800 text-xs truncate max-w-[130px]">${p.name}</h4>
-                                    <p class="text-rose-600 font-black text-xs">₹${p.price} <span class="text-[10px] text-gray-400 font-normal">(${cat})</span></p>
-                                    <p class="text-[10px] text-gray-500">Qty: ${stockQty} | Disc: ${disc}%</p>
-                                    <span class="text-[9px] px-1.5 py-0.5 rounded font-bold ${isOut ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">
-                                        ${isOut ? 'Out of Stock' : 'In Stock'}
-                                    </span>
-                                </div>
+                querySnapshot.forEach((docSnap) => {
+                    const p = docSnap.data();
+                    const id = docSnap.id;
+                    content += `
+                        <div class="bg-white p-2.5 rounded-xl border border-gray-200 flex items-center justify-between gap-2 shadow-sm">
+                            <img src="${p.image}" class="w-12 h-12 object-cover rounded-lg">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-xs text-gray-900 truncate max-w-[120px]">${p.name}</h4>
+                                <p class="text-[10px] text-rose-600 font-black">₹${p.price} | Stock: ${p.stock}</p>
                             </div>
-                            <div class="flex gap-1.5">
-                                <button onclick="editProduct('${id}')" class="bg-sky-50 hover:bg-sky-100 text-sky-600 text-xs px-2.5 py-1.5 rounded-lg font-bold transition">
-                                    ✏️ Edit
-                                </button>
-                                <button onclick="deleteProduct('${id}')" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs px-2.5 py-1.5 rounded-lg font-bold transition">
-                                    🗑️ Delete
+                            <button onclick="deleteProduct('${id}')" class="bg-red-50 text-red-600 border border-red-200 px-2 py-1 rounded-lg text-[10px] font-bold">డిలీట్</button>
+                        </div>
+                    `;
+                });
+                list.innerHTML = content;
+            } catch (e) {
+                list.innerHTML = `<p class="text-red-500 text-center text-xs">లోడ్ అవ్వలేదు</p>`;
+            }
+        };
+
+        window.deleteProduct = async function(id) {
+            if(confirm("ఈ ప్రొడక్ట్‌ని డిలీట్ చేయాలనుకుంటున్నారా?")) {
+                await deleteDoc(doc(db, "items", id));
+                loadAdminProducts();
+            }
+        };
+
+        // Load Customer Orders for Admin Management & Waybill Update
+        window.loadAdminOrders = async function() {
+            const container = document.getElementById('admin-orders-list');
+            container.innerHTML = `<p class="text-gray-500 text-center text-xs py-4">ఆర్డర్లు లోడ్ అవుతున్నాయి...</p>`;
+
+            try {
+                const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+
+                if(querySnapshot.empty) {
+                    container.innerHTML = `<p class="text-gray-400 text-center text-xs py-6">ఆర్డర్లు ఏవీ లేవు.</p>`;
+                    return;
+                }
+
+                let html = '';
+                querySnapshot.forEach((docSnap) => {
+                    const ord = docSnap.data();
+                    const docId = docSnap.id;
+                    html += `
+                        <div class="bg-white border border-gray-200 rounded-xl p-3 text-xs space-y-2 shadow-sm">
+                            <div class="flex justify-between font-bold text-gray-900 border-b pb-1">
+                                <span>🆔 ${ord.orderId}</span>
+                                <span class="text-rose-600">₹${ord.total}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-700"><b>పేరు:</b> ${ord.name} | <b>ఫోన్:</b> ${ord.phone}</p>
+                            <p class="text-[10px] text-gray-700"><b>అడ్రస్:</b> ${ord.address} - ${ord.pincode}</p>
+                            <p class="text-[10px] text-gray-700"><b>UTR ID:</b> ${ord.utrNumber}</p>
+                            
+                            <div class="bg-gray-50 p-2 rounded-lg border border-gray-200 space-y-1.5">
+                                <p class="text-[10px] font-bold text-gray-800">🚚 షిప్పింగ్ & వేబిల్లు అప్‌డేట్:</p>
+                                <div>
+                                    <label class="text-[9px] text-gray-500 block">Waybill / Tracking No:</label>
+                                    <input type="text" id="waybill_${docId}" value="${ord.waybill || ''}" placeholder="వేబిల్లు నంబర్ రాయండి" class="w-full border px-2 py-1 text-xs rounded bg-white">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-gray-500 block">Shipping Date:</label>
+                                    <input type="text" id="date_${docId}" value="${ord.shippingDate || ''}" placeholder="ఉదా: 18 Sep 2026" class="w-full border px-2 py-1 text-xs rounded bg-white">
+                                </div>
+                                <button onclick="saveOrderTracking('${docId}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded text-xs font-bold shadow transition mt-1">
+                                    💾 సేవ్ & అప్‌డేట్ (Save)
                                 </button>
                             </div>
                         </div>
                     `;
                 });
-                listEl.innerHTML = html;
-            } catch (e) {
-                listEl.innerHTML = `<p class="text-red-500 text-center text-xs">లోడ్ అవ్వలేదు: ${e.message}</p>`;
+                container.innerHTML = html;
+            } catch(e) {
+                container.innerHTML = `<p class="text-red-500 text-center text-xs">లోపం: ${e.message}</p>`;
             }
-        }
+        };
 
-        window.editProduct = function(id) {
-            const p = allProductsCache[id];
-            if(!p) return;
+        window.saveOrderTracking = async function(docId) {
+            const waybill = document.getElementById(`waybill_${docId}`).value.trim();
+            const shippingDate = document.getElementById(`date_${docId}`).value.trim();
 
-            document.getElementById('editDocId').value = id;
-            document.getElementById('pName').value = p.name || '';
-            document.getElementById('pPrice').value = p.price || '';
-            document.getElementById('pDiscount').value = p.discount || 30;
-            document.getElementById('pStock').value = p.stock || 10;
-            document.getElementById('pCategory').value = p.category || '';
-            document.getElementById('pStatus').value = p.status || 'In Stock';
-            document.getElementById('pDesc').value = p.description || '';
-
-            document.getElementById('formTitle').innerText = "✏️ ప్రొడక్ట్ వివరాలు సవరించండి (Edit)";
-            document.getElementById('saveBtn').innerText = "💾 మార్పులు సేవ్ చేయి (Update)";
-            document.getElementById('cancelBtn').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        window.resetForm = function() {
-            document.getElementById('editDocId').value = '';
-            document.getElementById('pName').value = '';
-            document.getElementById('pPrice').value = '';
-            document.getElementById('pDiscount').value = '30';
-            document.getElementById('pStock').value = '10';
-            document.getElementById('pCategory').value = '';
-            document.getElementById('pImageFile').value = '';
-            document.getElementById('pDesc').value = '';
-            document.getElementById('formTitle').innerText = "➕ కొత్త ప్రొడక్ట్ జోడించండి";
-            document.getElementById('saveBtn').innerText = "🚀 ప్రొడక్ట్ పబ్లిష్ చేయండి (Publish)";
-            document.getElementById('cancelBtn').classList.add('hidden');
-        }
-
-        window.deleteProduct = async function(id) {
-            if(confirm("ఈ ప్రొడక్ట్‌ని తొలగించాలనుకుంటున్నారా?")) {
-                try {
-                    await deleteDoc(doc(db, "items", id));
-                    alert("తొలగించబడింది!");
-                    loadAdminProducts();
-                } catch(e) {
-                    alert("ఎర్రర్: " + e.message);
-                }
+            try {
+                await updateDoc(doc(db, "orders", docId), {
+                    waybill: waybill,
+                    shippingDate: shippingDate
+                });
+                alert("వేబిల్లు మరియు తేదీ విజయవంతంగా సేవ్ చేయబడ్డాయి!");
+                loadAdminOrders();
+            } catch(e) {
+                alert("సేవ్ అవ్వలేదు: " + e.message);
             }
-        }
+        };
 
-        loadAdminProducts();
+        window.onload = function() {
+            loadAdminProducts();
+            loadAdminOrders();
+        };
     </script>
+</head>
+<body class="bg-gray-100 pb-16">
+
+    <!-- Header -->
+    <header class="bg-gray-900 text-white p-3 sticky top-0 z-40 shadow flex justify-between items-center">
+        <h1 class="text-sm font-black tracking-wide">VENKAT TEXTILES - ADMIN PANEL</h1>
+        <a href="index.html" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold">స్టోర్ కి వెళ్ళు (Store)</a>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container mx-auto p-3 max-w-xl space-y-4">
+        
+        <!-- Add Product Section -->
+        <section class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+            <h2 class="text-xs font-bold text-gray-800 mb-3 uppercase tracking-wider border-b pb-1">➕ కొత్త ప్రొడక్ట్ జోడించండి</h2>
+            <form id="productForm" onsubmit="addProduct(event)" class="space-y-2.5">
+                <div>
+                    <label class="text-[10px] font-semibold text-gray-600 block">ప్రొడక్ట్ పేరు:</label>
+                    <input type="text" id="prodName" required placeholder="ఉదా: పట్టు చీర" class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="text-[10px] font-semibold text-gray-600 block">ధర (₹):</label>
+                        <input type="number" id="prodPrice" required placeholder="450" class="w-full border px-2 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-semibold text-gray-600 block">డిస్కౌంట్ (%):</label>
+                        <input type="number" id="prodDiscount" value="30" class="w-full border px-2 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-semibold text-gray-600 block">స్టాక్ (Qty):</label>
+                        <input type="number" id="prodStock" required placeholder="10" class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-semibold text-gray-600 block">ఇమేజ్ లింక్ (Image URL):</label>
+                    <input type="url" id="prodImage" required placeholder="https://..." class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
+                </div>
+                <div>
+                    <label class="text-[10px] font-semibold text-gray-600 block">వివరణ (Description):</label>
+                    <input type="text" id="prodDesc" placeholder="సిక్స్ కలర్స్ మ్యాచింగ్" class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
+                </div>
+                <button type="submit" id="saveBtn" class="w-full bg-rose-600 hover:bg-rose-700 text-white text-xs py-2.5 rounded-xl font-bold shadow transition mt-2">
+                    ప్రొడక్ట్ సేవ్ చేయి
+                </button>
+            </form>
+        </section>
+
+        <!-- Customer Orders Management Section -->
+        <section class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+            <h2 class="text-xs font-bold text-gray-800 mb-3 uppercase tracking-wider border-b pb-1 flex justify-between items-center">
+                <span>📦 కస్టమర్ ఆర్డర్లు & వేబిల్లు అప్‌డేట్</span>
+                <button onclick="loadAdminOrders()" class="text-[10px] text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">రిఫ్రెష్</button>
+            </h2>
+            <div id="admin-orders-list" class="space-y-3">
+                <p class="text-gray-400 text-center text-xs py-4">ఆర్డర్లు లోడ్ అవుతున్నాయి...</p>
+            </div>
+        </section>
+
+        <!-- Manage Existing Products -->
+        <section class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+            <h2 class="text-xs font-bold text-gray-800 mb-3 uppercase tracking-wider border-b pb-1">📋 ప్రొడక్ట్స్ జాబితా & స్టాక్ మేనేజ్‌మెంట్</h2>
+            <div id="admin-products-list" class="space-y-2"></div>
+        </section>
+
+    </main>
+
 </body>
 </html>

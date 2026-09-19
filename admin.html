@@ -81,20 +81,48 @@
                 querySnapshot.forEach((docSnap) => {
                     const p = docSnap.data();
                     const id = docSnap.id;
+                    const stockVal = Number(p.stock) || 0;
                     content += `
-                        <div class="bg-white p-2.5 rounded-xl border border-gray-200 flex items-center justify-between gap-2 shadow-sm">
-                            <img src="${p.image}" class="w-12 h-12 object-cover rounded-lg">
-                            <div class="flex-grow">
-                                <h4 class="font-bold text-xs text-gray-900 truncate max-w-[120px]">${p.name}</h4>
-                                <p class="text-[10px] text-rose-600 font-black">₹${p.price} | Stock: ${p.stock}</p>
+                        <div class="bg-white p-2.5 rounded-xl border border-gray-200 flex flex-col gap-2 shadow-sm">
+                            <div class="flex items-center justify-between gap-2">
+                                <img src="${p.image}" class="w-12 h-12 object-cover rounded-lg">
+                                <div class="flex-grow">
+                                    <h4 class="font-bold text-xs text-gray-900 truncate max-w-[130px]">${p.name}</h4>
+                                    <p class="text-[10px] text-rose-600 font-black">₹${p.price} | Stock: ${stockVal}</p>
+                                </div>
+                                <button onclick="deleteProduct('${id}')" class="bg-red-50 text-red-600 border border-red-200 px-2 py-1 rounded-lg text-[10px] font-bold">డిలీట్</button>
                             </div>
-                            <button onclick="deleteProduct('${id}')" class="bg-red-50 text-red-600 border border-red-200 px-2 py-1 rounded-lg text-[10px] font-bold">డిలీట్</button>
+                            <div class="flex items-center justify-between bg-gray-50 p-1.5 rounded-lg border border-gray-200">
+                                <span class="text-[10px] font-bold text-gray-700">స్టాక్ మార్చు:</span>
+                                <div class="flex items-center gap-1.5">
+                                    <input type="number" id="new_stock_${id}" value="${stockVal}" class="w-16 border px-1.5 py-0.5 text-xs rounded bg-white text-center font-bold">
+                                    <button onclick="updateProductStock('${id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-[10px] font-bold shadow">
+                                        అప్‌డేట్
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     `;
                 });
                 list.innerHTML = content;
             } catch (e) {
                 list.innerHTML = `<p class="text-red-500 text-center text-xs">లోడ్ అవ్వలేదు</p>`;
+            }
+        };
+
+        window.updateProductStock = async function(id) {
+            const newStockVal = Number(document.getElementById(`new_stock_${id}`).value);
+            const newStatus = newStockVal > 0 ? "In Stock" : "Out of Stock";
+
+            try {
+                await updateDoc(doc(db, "items", id), {
+                    stock: newStockVal,
+                    status: newStatus
+                });
+                alert("స్టాక్ విజయవంతంగా అప్‌డేట్ చేయబడింది!");
+                loadAdminProducts();
+            } catch(e) {
+                alert("అప్‌డేట్ అవ్వలేదు: " + e.message);
             }
         };
 
@@ -105,7 +133,6 @@
             }
         };
 
-        // Load Customer Orders with Delete Option
         window.loadAdminOrdersModal = async function() {
             document.getElementById('adminOrdersModal').classList.remove('hidden');
             const container = document.getElementById('admin-orders-list');
@@ -249,10 +276,10 @@
             </form>
         </section>
 
-        <!-- Manage Existing Products -->
+        <!-- Manage Existing Products with Stock Update -->
         <section class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
             <h2 class="text-xs font-bold text-gray-800 mb-3 uppercase tracking-wider border-b pb-1">📋 ప్రొడక్ట్స్ జాబితా & స్టాక్ మేనేజ్‌మెంట్</h2>
-            <div id="admin-products-list" class="space-y-2"></div>
+            <div id="admin-products-list" class="space-y-3"></div>
         </section>
 
     </main>
@@ -272,3 +299,4 @@
 
 </body>
 </html>
+

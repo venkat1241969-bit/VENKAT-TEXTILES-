@@ -14,6 +14,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let cart = [];
+let allProducts = [];
 let fetchedProducts = {};
 let currentOrderId = "";
 let finalCartTotal = 0;
@@ -24,7 +25,7 @@ window.loadProducts = async function() {
         const q = query(collection(db, "items"), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
         let content = '';
-
+        allProducts = [];
         if (querySnapshot.empty) {
             grid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-10 text-sm">ప్రస్తుతం ఎటువంటి ప్రొడక్ట్స్ అందుబాటులో లేవు.</p>`;
             return;
@@ -34,6 +35,7 @@ window.loadProducts = async function() {
             const p = docItem.data();
             const docId = docItem.id;
             fetchedProducts[docId] = p;
+            allProducts.push({ id: docId, ...p });
 
             const priceNum = Number(p.price) || 0;
             const discountVal = Number(p.discount) || 30;
@@ -346,4 +348,20 @@ function showToast(msg) {
 }
 
 window.onload = loadProducts;
+function filterProducts(category) {
+    const buttons = document.querySelectorAll('.cat-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('bg-rose-600', 'text-white', 'shadow-sm');
+        btn.classList.add('bg-gray-100', 'text-gray-700');
+    });
+    event.target.classList.remove('bg-gray-100', 'text-gray-700');
+    event.target.classList.add('bg-rose-600', 'text-white', 'shadow-sm');
+
+    if (category === 'ALL') {
+        displayProducts(allProducts); // లేదా మీ రెండరింగ్ లాజిక్
+    } else {
+        const filtered = allProducts.filter(p => p.catalog === category);
+        displayProducts(filtered);
+    }
+}
                             

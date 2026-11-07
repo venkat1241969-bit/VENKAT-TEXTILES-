@@ -31,6 +31,16 @@
 
     <!-- Main Section -->
     <main class="container mx-auto p-3">
+<div class="flex overflow-x-auto gap-2 px-3 py-2 bg-white shadow-sm mb-3 no-scrollbar sticky top-[50px] z-30">
+    <button onclick="filterProducts('ALL')" class="cat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-rose-600 text-white whitespace-nowrap shadow-sm">అన్నీ (All)</button>
+    <button onclick="filterProducts('SILK SAREES')" class="cat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700 whitespace-nowrap">Silk Sarees</button>
+    <button onclick="filterProducts('PATTU SAREES')" class="cat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700 whitespace-nowrap">Pattu Sarees</button>
+    <button onclick="filterProducts('WORK SAREES')" class="cat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700 whitespace-nowrap">Work Sarees</button>
+    <button onclick="filterProducts('COTTON SAREES')" class="cat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700 whitespace-nowrap">Cotton Sarees</button>
+    <button onclick="filterProducts('FANCY SAREES')" class="cat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700 whitespace-nowrap">Fancy Sarees</button>
+    <button onclick="filterProducts('READYMADE')" class="cat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700 whitespace-nowrap">Readymade</button>
+</div>
+        
         <h2 class="text-xs font-bold text-gray-700 mb-2.5 uppercase tracking-wider">మా లేటెస్ట్ కలెక్షన్స్</h2>
         <div id="products-grid" class="grid grid-cols-2 gap-2.5">
             <p class="col-span-full text-center py-10 text-xs text-gray-500 animate-pulse">ప్రొడక్ట్స్ లోడ్ అవుతున్నాయి...</p>

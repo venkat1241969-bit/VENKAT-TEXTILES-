@@ -24,8 +24,9 @@ window.loadProducts = async function() {
     try {
         const q = query(collection(db, "items"), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
-        let content = '';
         allProducts = [];
+        fetchedProducts = {};
+
         if (querySnapshot.empty) {
             grid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-10 text-sm">ప్రస్తుతం ఎటువంటి ప్రొడక్ట్స్ అందుబాటులో లేవు.</p>`;
             return;
@@ -36,65 +37,103 @@ window.loadProducts = async function() {
             const docId = docItem.id;
             fetchedProducts[docId] = p;
             allProducts.push({ id: docId, ...p });
-
-            const priceNum = Number(p.price) || 0;
-            const discountVal = Number(p.discount) || 30;
-            const originalPrice = Math.round(priceNum / (1 - (discountVal / 100)));
-            const stockQty = Number(p.stock) || 0;
-            const isOut = (p.status === "Out of Stock" || stockQty <= 0);
-
-            content += `
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col justify-between relative">
-                    <div class="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded z-10 shadow">
-                        ${discountVal}% off
-                    </div>
-                    <!-- Image with full view and click to zoom -->
-                    <div class="w-full h-44 bg-gray-50 flex items-center justify-center overflow-hidden cursor-pointer p-1" onclick="openImageZoom('${p.image}', '${p.name}')">
-                        <img loading="lazy" class="max-h-full max-w-full object-contain ${isOut ? 'grayscale opacity-60' : ''}" src="${p.image}" alt="${p.name}">
-                    </div>
-                    
-                    <div class="p-2.5 flex flex-col flex-grow">
-                        <h3 class="font-bold text-gray-900 text-xs mb-0.5 truncate">${p.name}</h3>
-                        <p class="text-gray-500 text-[9px] mb-1 truncate">${p.description || 'Pure Wholesale Quality'}</p>
-                        
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-black text-rose-600">₹${priceNum}</span>
-                            <span class="text-[9px] text-gray-400 line-through">₹${originalPrice}</span>
-                        </div>
-
-                        <div class="mb-1.5">
-                            ${isOut ? 
-                                `<span class="text-[9px] font-bold text-red-600 bg-red-50 px-1 py-0.5 rounded border border-red-200">❌ Out of Stock</span>` :
-                                `<span class="text-[9px] font-semibold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded border border-emerald-200">📦 Stock: ${stockQty} Left</span>`
-                            }
-                        </div>
-
-                        <div class="mt-auto">
-                            ${isOut ? 
-                                `<button disabled class="w-full bg-gray-300 text-gray-500 py-1.5 rounded-lg font-bold text-[10px] cursor-not-allowed">అందుబాటులో లేదు</button>` :
-                                `<button onclick="addToCart('${docId}')" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-1.5 rounded-lg font-bold text-[10px] shadow transition flex justify-center items-center gap-1">🛒 Add to Cart</button>`
-                            }
-                        </div>
-                    </div>
-                </div>
-            `;
         });
-        grid.innerHTML = content;
+
+        displayProducts(allProducts);
     } catch (e) {
         grid.innerHTML = `<p class="text-red-500 col-span-full text-center text-sm">డేటా లోడ్ అవ్వలేదు: ${e.message}</p>`;
     }
-}
+};
+
+// ప్రొడక్ట్స్ స్క్రీన్‌పై చూపించే ఫంక్షన్
+window.displayProducts = function(productsArray) {
+    const grid = document.getElementById('products-grid');
+    if (!grid) return;
+
+    if (productsArray.length === 0) {
+        grid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-10 text-sm">ఈ కేటగిరీలో ప్రొడక్ట్స్ ఏవీ లేవు.</p>`;
+        return;
+    }
+
+    let content = '';
+    productsArray.forEach((p) => {
+        const docId = p.id;
+        const priceNum = Number(p.price) || 0;
+        const discountVal = Number(p.discount) || 30;
+        const originalPrice = Math.round(priceNum / (1 - (discountVal / 100)));
+        const stockQty = Number(p.stock) || 0;
+        const isOut = (p.status === "Out of Stock" || stockQty <= 0);
+
+        content += `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col justify-between relative">
+                <div class="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded z-10 shadow">
+                    ${discountVal}% off
+                </div>
+                <!-- Image with full view and click to zoom -->
+                <div class="w-full h-44 bg-gray-50 flex items-center justify-center overflow-hidden cursor-pointer p-1" onclick="openImageZoom('${p.image}', '${p.name}')">
+                    <img loading="lazy" class="max-h-full max-w-full object-contain ${isOut ? 'grayscale opacity-60' : ''}" src="${p.image}" alt="${p.name}">
+                </div>
+                
+                <div class="p-2.5 flex flex-col flex-grow">
+                    <h3 class="font-bold text-gray-900 text-xs mb-0.5 truncate">${p.name}</h3>
+                    <p class="text-gray-500 text-[9px] mb-1 truncate">${p.description || 'Pure Wholesale Quality'}</p>
+                    
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs font-black text-rose-600">₹${priceNum}</span>
+                        <span class="text-[9px] text-gray-400 line-through">₹${originalPrice}</span>
+                    </div>
+
+                    <div class="mb-1.5">
+                        ${isOut ? 
+                            `<span class="text-[9px] font-bold text-red-600 bg-red-50 px-1 py-0.5 rounded border border-red-200">❌ Out of Stock</span>` :
+                            `<span class="text-[9px] font-semibold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded border border-emerald-200">📦 Stock: ${stockQty} Left</span>`
+                        }
+                    </div>
+
+                    <div class="mt-auto">
+                        ${isOut ? 
+                            `<button disabled class="w-full bg-gray-300 text-gray-500 py-1.5 rounded-lg font-bold text-[10px] cursor-not-allowed">అందుబాటులో లేదు</button>` :
+                            `<button onclick="addToCart('${docId}')" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-1.5 rounded-lg font-bold text-[10px] shadow transition flex justify-center items-center gap-1">🛒 Add to Cart</button>`
+                        }
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    grid.innerHTML = content;
+};
+
+// కేటగిరీ ఫిల్టర్ ఫంక్షన్
+window.filterProducts = function(category) {
+    const buttons = document.querySelectorAll('.cat-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('bg-rose-600', 'text-white', 'shadow-sm');
+        btn.classList.add('bg-gray-100', 'text-gray-700');
+    });
+    
+    if (event && event.target) {
+        event.target.classList.remove('bg-gray-100', 'text-gray-700');
+        event.target.classList.add('bg-rose-600', 'text-white', 'shadow-sm');
+    }
+
+    if (category === 'ALL') {
+        displayProducts(allProducts);
+    } else {
+        const filtered = allProducts.filter(p => p.catalog === category);
+        displayProducts(filtered);
+    }
+};
 
 // Image Zoom Functions
 window.openImageZoom = function(imgSrc, title) {
     document.getElementById('zoomedImg').src = imgSrc;
     document.getElementById('zoomedTitle').innerText = title;
     document.getElementById('imageZoomModal').classList.remove('hidden');
-}
+};
 
 window.closeImageZoom = function() {
     document.getElementById('imageZoomModal').classList.add('hidden');
-}
+};
 
 window.addToCart = function(id) {
     const product = fetchedProducts[id];
@@ -116,7 +155,7 @@ window.addToCart = function(id) {
     }
     updateCartUI();
     showToast("కార్ట్‌లోకి జోడించబడింది!");
-}
+};
 
 window.updateQty = function(id, change) {
     const item = cart.find(i => i.id === id);
@@ -132,7 +171,7 @@ window.updateQty = function(id, change) {
         }
     }
     updateCartUI();
-}
+};
 
 function updateCartUI() {
     const countEl = document.getElementById('cart-count');
@@ -175,7 +214,7 @@ function updateCartUI() {
 
 window.toggleCart = function() {
     document.getElementById('cartModal').classList.toggle('hidden');
-}
+};
 
 window.openCheckoutModal = function() {
     if(cart.length === 0) {
@@ -187,11 +226,11 @@ window.openCheckoutModal = function() {
 
     toggleCart();
     document.getElementById('checkoutModal').classList.remove('hidden');
-}
+};
 
 window.closeCheckoutModal = function() {
     document.getElementById('checkoutModal').classList.add('hidden');
-}
+};
 
 window.proceedToPaymentQR = function() {
     const name = document.getElementById('custName').value;
@@ -213,19 +252,19 @@ window.proceedToPaymentQR = function() {
 
     document.getElementById('checkoutModal').classList.add('hidden');
     document.getElementById('qrModal').classList.remove('hidden');
-}
+};
 
 window.closeQRModal = function() {
     document.getElementById('qrModal').classList.add('hidden');
-}
+};
 
 window.openMyOrdersModal = function() {
     document.getElementById('myOrdersModal').classList.remove('hidden');
-}
+};
 
 window.closeMyOrdersModal = function() {
     document.getElementById('myOrdersModal').classList.add('hidden');
-}
+};
 
 window.fetchCustomerOrders = async function() {
     const phone = document.getElementById('searchPhone').value.trim();
@@ -271,7 +310,7 @@ window.fetchCustomerOrders = async function() {
     } catch(e) {
         container.innerHTML = `<p class="text-red-500 text-center text-xs py-4">లోపం ఏర్పడింది: ${e.message}</p>`;
     }
-}
+};
 
 window.finishOrderWhatsApp = function() {
     const utrNumber = document.getElementById('utrNumber').value.trim();
@@ -288,7 +327,6 @@ window.finishOrderWhatsApp = function() {
     let total = 0;
     cart.forEach(i => { total += i.price * i.qty; });
 
-    // Background sync to Firebase (Won't block WhatsApp opening)
     setDoc(doc(db, "orders", currentOrderId), {
         orderId: currentOrderId,
         name: name,
@@ -335,11 +373,11 @@ window.finishOrderWhatsApp = function() {
 
     const myNumber = "919441447923";
     window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(orderSummary)}`, '_blank');
-}
-
+};
 
 function showToast(msg) {
     const t = document.getElementById('toast');
+    if (!t) return;
     t.innerText = msg;
     t.classList.remove('translate-y-20', 'opacity-0');
     setTimeout(() => {
@@ -348,20 +386,4 @@ function showToast(msg) {
 }
 
 window.onload = loadProducts;
-function filterProducts(category) {
-    const buttons = document.querySelectorAll('.cat-btn');
-    buttons.forEach(btn => {
-        btn.classList.remove('bg-rose-600', 'text-white', 'shadow-sm');
-        btn.classList.add('bg-gray-100', 'text-gray-700');
-    });
-    event.target.classList.remove('bg-gray-100', 'text-gray-700');
-    event.target.classList.add('bg-rose-600', 'text-white', 'shadow-sm');
-
-    if (category === 'ALL') {
-        displayProducts(allProducts); // లేదా మీ రెండరింగ్ లాజిక్
-    } else {
-        const filtered = allProducts.filter(p => p.catalog === category);
-        displayProducts(filtered);
-    }
-}
-                            
+                 

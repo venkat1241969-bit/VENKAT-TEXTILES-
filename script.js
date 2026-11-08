@@ -289,12 +289,27 @@ window.fetchCustomerOrders = async function() {
         let html = '';
         querySnapshot.forEach((docSnap) => {
             const ord = docSnap.data();
+            
+            // ఆర్డర్ తేదీ & సమయం ఫార్మాట్ చేయడం
+            let formattedDateTime = "సమయం అందుబాటులో లేదు";
+            if (ord.timestamp) {
+                formattedDateTime = new Date(ord.timestamp).toLocaleString('en-IN', { 
+                    day: '2-digit', 
+                    month: 'short', 
+                    year: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: true 
+                });
+            }
+
             html += `
                 <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs space-y-1">
                     <div class="flex justify-between font-bold text-gray-900 border-b pb-1">
                         <span>🆔 ${ord.orderId}</span>
                         <span class="text-rose-600">₹${ord.total}</span>
                     </div>
+                    <p class="text-[10px] text-rose-700 font-bold">📅 ఆర్డర్ చేసిన తేదీ & సమయం: ${formattedDateTime}</p>
                     <p class="text-[10px] text-gray-600"><b>పేరు:</b> ${ord.name}</p>
                     <p class="text-[10px] text-gray-600"><b>అడ్రస్:</b> ${ord.address} (${ord.pincode})</p>
                     <p class="text-[10px] text-gray-600"><b>UTR ID:</b> ${ord.utrNumber}</p>
@@ -386,4 +401,4 @@ function showToast(msg) {
 }
 
 window.onload = loadProducts;
-                 
+        

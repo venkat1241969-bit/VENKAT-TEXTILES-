@@ -24,6 +24,7 @@
         window.addProduct = async function(event) {
             event.preventDefault();
             const name = document.getElementById('prodName').value;
+            const catalog = document.getElementById('prodCatalog').value; // కేటగిరీ తీసుకోవడానికి
             const price = document.getElementById('prodPrice').value;
             const discount = document.getElementById('prodDiscount').value;
             const stock = document.getElementById('prodStock').value;
@@ -46,6 +47,7 @@
                 try {
                     await addDoc(collection(db, "items"), {
                         name,
+                        catalog, // డేటాబేస్‌లో కేటగిరీ సేవ్ అవుతుంది
                         price: Number(price),
                         discount: Number(discount) || 30,
                         stock: Number(stock) || 1,
@@ -88,6 +90,7 @@
                                 <img src="${p.image}" class="w-12 h-12 object-cover rounded-lg">
                                 <div class="flex-grow">
                                     <h4 class="font-bold text-xs text-gray-900 truncate max-w-[130px]">${p.name}</h4>
+                                    <span class="text-[9px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-bold">${p.catalog || 'GENERAL'}</span>
                                     <p class="text-[10px] text-rose-600 font-black">₹${p.price} | Stock: ${stockVal}</p>
                                 </div>
                                 <button onclick="deleteProduct('${id}')" class="bg-red-50 text-red-600 border border-red-200 px-2 py-1 rounded-lg text-[10px] font-bold">డిలీట్</button>
@@ -151,10 +154,24 @@
                 querySnapshot.forEach((docSnap) => {
                     const ord = docSnap.data();
                     const docId = docSnap.id;
+                    
+                    // తేదీ మరియు సమయం ఫార్మాట్ చేయడం
+                    let formattedDateTime = "సమయం అందుబాటులో లేదు";
+                    if (ord.timestamp) {
+                        formattedDateTime = new Date(ord.timestamp).toLocaleString('en-IN', { 
+                            day: '2-digit', 
+                            month: 'short', 
+                            year: 'numeric', 
+                            hour: '2-digit', 
+                            minute: '2-digit',
+                            hour12: true 
+                        });
+                    }
+
                     html += `
                         <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs space-y-2 shadow-sm relative">
                             <div class="flex justify-between items-center font-bold text-gray-900 border-b pb-1">
-                                <span>🆔 ${ord.orderId}</span>
+                                <span>🆔 ${ord.orderId || 'N/A'}</span>
                                 <div class="flex items-center gap-2">
                                     <span class="text-rose-600">₹${ord.total}</span>
                                     <button onclick="deleteOrder('${docId}')" class="bg-red-100 hover:bg-red-200 text-red-700 px-2 py-0.5 rounded text-[9px] font-bold">🗑️ డిలీట్</button>
@@ -163,6 +180,9 @@
                             <p class="text-[10px] text-gray-700"><b>పేరు:</b> ${ord.name} | <b>ఫోన్:</b> ${ord.phone}</p>
                             <p class="text-[10px] text-gray-700"><b>అడ్రస్:</b> ${ord.address} - ${ord.pincode}</p>
                             <p class="text-[10px] text-gray-700"><b>UTR ID:</b> ${ord.utrNumber}</p>
+                            
+                            <!-- తేదీ & సమయం డిస్‌ప్లే అయ్యే లైన్ -->
+                            <p class="text-[10px] text-rose-700 font-bold">📅 ఆర్డర్ చేసిన తేదీ & సమయం: ${formattedDateTime}</p>
                             
                             <div class="bg-white p-2 rounded-lg border border-gray-200 space-y-1.5">
                                 <p class="text-[10px] font-bold text-gray-800">🚚 వేబిల్లు & డేట్ అప్‌డేట్:</p>
@@ -249,8 +269,7 @@
                     <input type="text" id="prodName" required placeholder="ఉదా: పట్టు చీర" class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-gray-50">
                 </div>
                 <div>
-     
-                         <label class="text-[10px] font-semibold text-gray-600 block">కేటగిరి (Catalog):</label>
+                    <label class="text-[10px] font-semibold text-gray-600 block">కేటగిరి (Catalog):</label>
                     <select id="prodCatalog" class="w-full border px-2.5 py-1.5 text-xs rounded-lg outline-none bg-gray-50 font-bold">
                         <option value="SILK SAREES">SILK SAREES</option>
                         <option value="PATTU SAREES">PATTU SAREES</option>
@@ -311,4 +330,3 @@
 
 </body>
 </html>
-
